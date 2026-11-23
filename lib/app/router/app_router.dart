@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/places/domain/entities/place.dart';
 import '../../features/places/presentation/pages/places_map_page.dart';
 import '../../features/places/presentation/pages/places_list_page.dart';
 import '../../features/places/presentation/pages/place_form_page.dart';
+import '../../features/places/presentation/pages/place_detail_page.dart';
 import '../../features/wishlist/presentation/pages/wishlist_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 
@@ -43,6 +45,22 @@ final appRouter = GoRouter(
       path: '/places/new',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const PlaceFormPage(),
+    ),
+    GoRoute(
+      path: '/places/:id',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return PlaceDetailPage(placeId: id);
+      },
+    ),
+    GoRoute(
+      path: '/places/:id/edit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final place = state.extra as Place?;
+        return PlaceFormPage(initialPlace: place);
+      },
     ),
     GoRoute(
       path: '/settings',

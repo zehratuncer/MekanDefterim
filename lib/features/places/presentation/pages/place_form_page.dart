@@ -1,55 +1,139 @@
 import 'package:flutter/material.dart';
-import 'package:mekandefterim/core/theme/app_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../domain/entities/place.dart';
+import '../../domain/entities/place_category.dart';
+import '../../domain/entities/place_status.dart';
+import '../controllers/place_form_controller.dart';
 
-class PlaceFormPage extends StatelessWidget {
-  const PlaceFormPage({super.key});
+class PlaceFormPage extends ConsumerStatefulWidget {
+  final Place? initialPlace;
+
+  const PlaceFormPage({super.key, this.initialPlace});
+
+  @override
+  ConsumerState<PlaceFormPage> createState() => _PlaceFormPageState();
+}
+
+class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _noteController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.initialPlace?.name ?? '');
+    _noteController = TextEditingController(text: widget.initialPlace?.note ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final formState = ref.watch(placeFormNotifierProvider(widget.initialPlace));
+    final notifier = ref.read(placeFormNotifierProvider(widget.initialPlace).notifier);
+
+    final isEdit = widget.initialPlace != null;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Yeni Mekân'),
+        title: Text(isEdit ? 'Mekânı Düzenle' : 'Yeni Mekân'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Center(
+              child: Text(
+                '2 / 2',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textMuted.withAlpha(200),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Konum Alanı
+            // Konum Kutusu
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: AppColors.cardBorder),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.location_on_rounded, color: AppColors.accent),
-                  SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.location_on_rounded, color: AppColors.accent, size: 22),
+                  ),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Konum seçildi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                        Text('Moda, Kadıköy - İstanbul', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                        Text(
+                          formState.addressLabel ?? 'İstanbul',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'Konum seçildi',
+                          style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                        ),
                       ],
                     ),
                   ),
-                  Text('Değiştir', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600)),
+                  TextButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          backgroundColor: AppColors.surface,
+                          content: Text('Haritadan konum seçimi Faz 4 ile eklenecektir.'),
+                        ),
+                      );
+                    },
+                    child: const Text('Değiştir', style: TextStyle(color: AppColors.accent)),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            const Text('Mekân adı', style: TextStyle(fontWeight: FontWeight.w600)),
+            // Mekân Adı
+            const Text(
+              'Mekân adı',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary),
+            ),
             const SizedBox(height: 8),
-            const TextField(
+            TextField(
+              controller: _nameController,
+              onChanged: notifier.setName,
               decoration: InputDecoration(
                 hintText: 'Örn: Montag Coffee',
+                errorText: formState.errorMessage,
               ),
             ),
             const SizedBox(height: 20),
-            const Text('Kategori', style: TextStyle(fontWeight: FontWeight.w600)),
+            // Kategori
+            const Text(
+              'Kategori',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary),
+            ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -60,24 +144,231 @@ class PlaceFormPage extends StatelessWidget {
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: 'Kafe',
+                  value: formState.categoryKey,
                   isExpanded: true,
                   dropdownColor: AppColors.surface,
-                  items: const [
-                    DropdownMenuItem(value: 'Kafe', child: Text('Kafe')),
-                    DropdownMenuItem(value: 'Restoran', child: Text('Restoran')),
-                    DropdownMenuItem(value: 'Kitapçı', child: Text('Kitapçı')),
-                    DropdownMenuItem(value: 'Kültür & Sanat', child: Text('Kültür & Sanat')),
-                    DropdownMenuItem(value: 'Açık hava', child: Text('Açık hava')),
-                  ],
-                  onChanged: (val) {},
+                  items: PlaceCategory.values.map((cat) {
+                    return DropdownMenuItem(
+                      value: cat.key,
+                      child: Row(
+                        children: [
+                          Icon(cat.icon, size: 20, color: AppColors.accent),
+                          const SizedBox(width: 12),
+                          Text(cat.label, style: const TextStyle(color: AppColors.textPrimary)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val != null) notifier.setCategory(val);
+                  },
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+            // Durum Seçimi: Gezildi & Gitmek istiyorum
+            const Text(
+              'Durum',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _StatusOptionButton(
+                    label: 'Gezildi',
+                    icon: Icons.check_rounded,
+                    isSelected: formState.status == PlaceStatus.visited,
+                    onTap: () => notifier.setStatus(PlaceStatus.visited),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _StatusOptionButton(
+                    label: 'Gitmek istiyorum',
+                    icon: Icons.favorite_border_rounded,
+                    isSelected: formState.status == PlaceStatus.planned,
+                    onTap: () => notifier.setStatus(PlaceStatus.planned),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            // Gezildi seçildiğinde Puan ve Fotoğraf
+            if (formState.status == PlaceStatus.visited) ...[
+              Row(
+                children: [
+                  // Fotoğraf Ekle Butonu
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColors.surface,
+                        foregroundColor: AppColors.textPrimary,
+                        side: const BorderSide(color: AppColors.cardBorder),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: AppColors.surface,
+                            content: Text('Fotoğraf seçimi Faz 5 ile eklenecektir.'),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.add_photo_alternate_outlined, size: 20, color: AppColors.accent),
+                      label: const Text('Fotoğraf ekle', style: TextStyle(fontSize: 13)),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Puan Yıldızları
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Puan · isteğe bağlı',
+                        style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: List.generate(5, (index) {
+                          final star = index + 1;
+                          final isFilled = formState.rating != null && formState.rating! >= star;
+                          return GestureDetector(
+                            onTap: () => notifier.setRating(star),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 4),
+                              child: Icon(
+                                isFilled ? Icons.star_rounded : Icons.star_border_rounded,
+                                color: isFilled ? AppColors.starRating : AppColors.textMuted,
+                                size: 24,
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+            ] else ...[
+              // İstek Listem Bilgi Kutusu
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant.withAlpha(150),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.favorite_border_rounded, color: AppColors.wishlistText, size: 22),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Bu mekân İstek Listem’de görünecek. Gittiğinde durumunu değiştirebilirsin.',
+                        style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.3),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+            // Not Alanı
+            const Text(
+              'Not · isteğe bağlı',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _noteController,
+              onChanged: notifier.setNote,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                hintText: 'Kahvesi çok iyi. Pencere kenarında kitap okumak için yeniden gel.',
+              ),
+            ),
+            const SizedBox(height: 32),
+            // Kaydet Butonu
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Mekânı Kaydet'),
+              onPressed: formState.isSubmitting
+                  ? null
+                  : () async {
+                      final success = await notifier.savePlace();
+                      if (success && context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+              child: formState.isSubmitting
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.check_rounded, size: 20),
+                        const SizedBox(width: 8),
+                        Text(isEdit ? 'Değişiklikleri kaydet' : 'Mekânı kaydet'),
+                      ],
+                    ),
+            ),
+            const SizedBox(height: 12),
+            const Center(
+              child: Text(
+                'Yalnızca bu cihazda, sana özel.',
+                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusOptionButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _StatusOptionButton({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryLight : AppColors.cardBorder,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: isSelected ? Colors.white : AppColors.textSecondary),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppColors.textSecondary,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 13,
+              ),
             ),
           ],
         ),
