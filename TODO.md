@@ -97,11 +97,84 @@ Bu fazın amacı: UI bağımlılığı olmadan, tüm mekân CRUD akışının, i
 
 ## 🔮 Sonraki Fazların Genel Özeti
 
-- **Faz 3 — Mekân Yönetimi UI:**
-  - Mekân kartı, arama alanı, filtre barları.
-  - 2 adımlı ekleme/düzenleme formu (konum seçimi ve detay girişi).
-  - Detay sayfası, fotoğraf galerisi, not alanı, favorileme ve silme onay diyaloğu.
-  - İstek listesi ve tek tıkla "Gezildi olarak işaretle" butonu.
+## 🎨 Faz 3 — Mekân Yönetimi UI (Detaylı Tasarım ve Görev Listesi)
+
+Bu fazın amacı: Harita entegrasyonu öncesinde, kullanıcının tasarımlarda gördüğü tüm UI bileşenlerini (`Koleksiyon`, `Mekân Detayı`, `Yeni Mekân Ekle / Düzenle`, `İstek Listem`), form validasyonlarını ve gerçek SQLite veritabanına bağlı CRUD akışlarını eksiksiz çalıştırmaktır.
+
+### 3.1 State Yönetimi & Presentation Notifier'ları (Riverpod)
+- [ ] **`PlacesListController` & `placesListProvider`:**
+  - `PlaceFilter` durumunu yönetme (aktif arama metni, seçilen kategori çipi, gezildi/istekler durumu, favoriler filtresi).
+  - Veritabanındaki `watchPlaces(filter: ...)` stream'ini dinleyerek koleksiyon sayacını (*"X mekân · Y gezildi · Z yeni rota"*) hesaplama ve UI'a reaktif aktarma.
+  - Hızlı arama debounce mekanizması.
+- [ ] **`PlaceFormController` & `placeFormControllerProvider`:**
+  - Form state modeli (`name`, `categoryKey`, `status`, `latitude`, `longitude`, `addressLabel`, `note`, `rating`, `photos`).
+  - Dinamik validasyon: Durum `planned` yapıldığında puanı ve ziyaret tarihini otomatik temizleme / UI'da gizleme.
+  - Kaydetme esnasında çifte tıklamayı önleme (`isSubmitting` kilidi).
+- [ ] **`PlaceDetailController`:**
+  - Tekil mekân detayını ve fotoğraflarını dinleme.
+  - Hızlı aksiyonlar: Tek dokunuşla favori açma/kapatma, tek dokunuşla "Gezildi olarak işaretle".
+
+### 3.2 Özel Arayüz Bileşenleri (Custom Widgets)
+- [ ] **`PlaceCard` (Koleksiyon Kartı — Tasarım: `06 · Koleksiyon.png`):**
+  - Sol tarafta önizleme / placeholder görsel alanı veya mini konum göstergesi.
+  - Mekân adı, kategori etiketi, semt/şehir bilgisi.
+  - Gezildi rozeti (`✓ Gezildi · Gün Ay`), 1-5 yıldız puanı.
+  - Sağ üstte hızlı favori kalp butonu (dolu/boş animasyonlu).
+  - Dokunulduğunda detay sayfasına geçiş.
+- [ ] **`WishlistCard` (İstek Listesi Kartı — Tasarım: `08 · İstek Listem.png`):**
+  - Sol tarafta şık kategori ikonu (Restoran çatal-bıçak, Müze sütun, Açık hava yaprak vb.).
+  - Mekân adı, kategori · semt bilgisi, tırnak içinde kısa gezi notu (*"Arkadaşımla git..."*).
+  - Kartın altında zümrüt yeşili *"✓ Gezildi olarak işaretle"* butonu (tek tıkla durumu `visited` yapıp Gezildi listesine taşır).
+- [ ] **`PlaceFilterBar` & `CategoryChips`:**
+  - Yatay kaydırılabilir modern kategori filtre çipleri (`Tümü`, `Kafe`, `Restoran`, `Kitapçı` vb.).
+  - Durum seçim çipi (`Tümü`, `Gezildi`, `İstekler`) ve `Favoriler ♡` hızlı filtresi.
+  - Aktif filtre varken *"Filtreleri temizle"* bağlantısı.
+- [ ] **`AppDeleteDialog` (Silme Onay Penceresi):**
+  - Şık, tasarım diliyle uyumlu onay diyaloğu (*"Bu mekânı silmek istediğine emin misin? İlişkili fotoğraflar da cihazından temizlenecektir."*).
+
+### 3.3 Ekran Geliştirmeleri (Pages)
+- [ ] **Koleksiyon Ekranı (`PlacesListPage`):**
+  - Üstte *"Kendi küçük atlasın."* başlığı ve dinamik sayaç.
+  - Arama alanı (temizleme `x` ikonu ile).
+  - Filtre çipleri barı.
+  - `ListView.builder` ile kart listesi.
+  - Boş durum (`AppEmptyState`): Arama sonucu boşsa ayrı, veritabanı tamamen boşsa *"İlk keşfini ekle"* çağrısı.
+- [ ] **İstek Listem Ekranı (`WishlistPage`):**
+  - *"Bir sonraki durağın?"* başlığı ve *"X mekân keşfedilmeyi bekliyor"* sayacı.
+  - `PlaceStatus.planned` olan kayıtların özel listesi.
+  - Tek tıkla "Gezildi"ye dönüştürme aksiyonu.
+  - Boş liste durumu tasarımı.
+- [ ] **Yeni Mekân Ekle / Düzenle Ekranı (`PlaceFormPage` — Tasarımlar: `04` & `05`):**
+  - Üstte Adım göstergesi (`2/2`).
+  - Seçilen Konum özeti kartı (*"Caferağa, Kadıköy - İstanbul · Değiştir"*).
+  - Mekân adı metin kutusu (zorunlu alan kontrolü).
+  - Kategori açılır menüsü / modal seçici.
+  - Durum seçici: İki parça toggle buton `[✓ Gezildi]  [♡ Gitmek istiyorum]`.
+  - **Dinamik görünüm:**
+    - `Gezildi` seçiliyse: Fotoğraf ekle butonu, 1-5 yıldız değerlendirme seçicisi, *"Kendime not"* alanı.
+    - `Gitmek istiyorum` seçiliyse: Puan gizlenir, *"Bu mekân İstek Listem'de görünecek..."* bilgilendirme kutusu gösterilir.
+  - Kaydet butonu (`Mekânı kaydet`) ve altta *"Yalnızca bu cihazda, sana özel."* güvencesi.
+- [ ] **Mekân Detay Ekranı (`PlaceDetailPage` — Tasarım: `07 · Mekân detayı.png`):**
+  - Üstte fotoğraf galerisi / büyük görsel alanı (ör. 1/1 sayacı, yer tutucu görseli).
+  - Sağ üstte favori kalp ve silme çöp kutusu ikonu.
+  - Mekân adı ve rozetler (Kategori rozeti, Gezildi yeşil rozeti, Puan rozeti).
+  - *"KENDİME NOT"* kartı (tarih damgası ile).
+  - *"Haritada gör"* konumsal önizleme kartı.
+  - Altta ana aksiyonlar: Zümrüt yeşili *"Düzenle"* butonu ve yanında silme butonu.
+
+### 3.4 Yönlendirme & Navigasyon Entegrasyonu (GoRouter)
+- [ ] `/places/:id` rota tanımı (Detay sayfası).
+- [ ] `/places/:id/edit` rota tanımı (Düzenleme modu).
+- [ ] Formdan çıkarken kaydedilmemiş değişiklik varsa uyarı diyaloğu (PopScope).
+
+### 3.5 Testler ve Kalite Doğrulaması
+- [ ] Form controller ve state testleri (durum geçişleri, validasyonlar).
+- [ ] Widget testleri:
+  - Kartların doğru veriyi göstermesi.
+  - Favori butonuna dokunulduğunda veritabanı akışının tetiklenmesi.
+  - "Gezildi olarak işaretle" butonunun durumu güncellemesi.
+  - Boş liste ve arama sonucu bulunamadı durumlarının çizilmesi.
+- [ ] `flutter analyze` ve `flutter test` ile tam doğrulama.
 - **Faz 4 — Harita ve Konum:**
   - `flutter_map` + OSM uyumlu tile katmanı (atıf ve kurallara uygun).
   - Pin gösterimi (Gezildi için yeşil tik, İstek için turuncu kalp).
