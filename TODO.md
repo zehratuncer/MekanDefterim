@@ -17,14 +17,14 @@ Bu doküman, ana proje planındaki (`MekanDefteri_Proje_Plani.md`) gereksinimler
 Bu fazın amacı: UI bağımlılığı olmadan, tüm mekân CRUD akışının, ilişkisel tabloların, doğrulama kurallarının ve veri kaynaklarının testlerle doğrulanmış sağlam bir temel üzerine oturtulmasıdır.
 
 ### 2.1 Paket ve Altyapı Kurulumu
-- [ ] `drift`, `sqlite3_flutter_libs`, `path` paketlerini bağımlılıklara ekle.
-- [ ] `drift_dev`, `build_runner` paketlerini `dev_dependencies` altına ekle.
-- [ ] SQLite platform desteğini doğrula (Android, iOS, test ortamları).
+- [x] `drift`, `sqlite3_flutter_libs`, `path` paketlerini bağımlılıklara ekle.
+- [x] `drift_dev`, `build_runner` paketlerini `dev_dependencies` altına ekle.
+- [x] SQLite platform desteğini doğrula (Android, iOS, test ortamları).
 
 ### 2.2 Domain Modelleri ve Entity Tasarımı
-- [ ] **`PlaceStatus` Enum:** `visited` (Gezildi) ve `planned` (Gitmek istiyorum) durumları.
-- [ ] **`PlaceCategory` Enum / Modeli:** Kafe, Restoran, Kitapçı, Doğa / Park, Müze / Kültür, Alışveriş, Sahil / Manzara, Diğer (ikon ve etiket eşleşmeleriyle).
-- [ ] **`Place` Entity:**
+- [x] **`PlaceStatus` Enum:** `visited` (Gezildi) ve `planned` (Gitmek istiyorum) durumları.
+- [x] **`PlaceCategory` Enum / Modeli:** Kafe, Restoran, Kitapçı, Doğa / Park, Müze / Kültür, Alışveriş, Sahil / Manzara, Diğer (ikon ve etiket eşleşmeleriyle).
+- [x] **`Place` Entity:**
   - `id`: UUID (String)
   - `name`: String (boş olamaz, trim kontrolü)
   - `categoryKey`: String
@@ -38,60 +38,60 @@ Bu fazın amacı: UI bağımlılığı olmadan, tüm mekân CRUD akışının, i
   - `visitedAt`: DateTime? (ziyaret tarihi)
   - `createdAt`: DateTime
   - `updatedAt`: DateTime
-- [ ] **`PlacePhoto` Entity:**
+- [x] **`PlacePhoto` Entity:**
   - `id`: UUID (String)
   - `placeId`: String (ilişkili mekân id'si)
   - `filePath`: String (yerel dosya yolu)
   - `thumbnailPath`: String? (liste performansı için önizleme yolu)
   - `sortOrder`: int (galeri sıralaması)
   - `createdAt`: DateTime
-- [ ] **İş Mantığı ve Doğrulama Kuralları:**
+- [x] **İş Mantığı ve Doğrulama Kuralları:**
   - Mekân adı boş veya sadece boşluklardan oluşamaz.
   - Koordinat sınırları doğrulaması.
   - `planned` durumundayken `rating` null olmalı veya sıfırlanmalı.
   - Bir mekâna en fazla 5 fotoğraf eklenebilme kuralı.
 
 ### 2.3 Drift / SQLite Tablo Tanımları & Veritabanı Katmanı
-- [ ] `Places` Drift tablosunu oluştur:
+- [x] `Places` Drift tablosunu oluştur:
   - Primary Key: `id` (Text)
   - Check constraint veya model seviyesinde doğrulama.
-- [ ] `PlacePhotos` Drift tablosunu oluştur:
+- [x] `PlacePhotos` Drift tablosunu oluştur:
   - Primary Key: `id` (Text)
   - Foreign Key: `placeId -> Places.id` ile `ON DELETE CASCADE`.
-- [ ] `AppPreferences` Drift tablosu (veya yerel ayar saklama tablosu):
+- [x] `AppPreferences` Drift tablosu (veya yerel ayar saklama tablosu):
   - Tema, son harita merkezi vb. için anahtar-değer tablosu.
-- [ ] `AppDatabase` sınıfını oluştur ve bağlantı yapılandırmasını (native bağlantı) tamamla.
-- [ ] `build_runner` çalıştırarak Drift kod üretimini (`app_database.g.dart`) gerçekleştir.
+- [x] `AppDatabase` sınıfını oluştur ve bağlantı yapılandırmasını (native bağlantı) tamamla.
+- [x] `build_runner` çalıştırarak Drift kod üretimini (`app_database.g.dart`) gerçekleştir.
 
 ### 2.4 Data Source & Repository Katmanı
-- [ ] **`PlaceRepository` (Domain Interface):**
-  - `watchAllPlaces({PlaceFilter? filter})`: Stream dinleme (harita ve liste için gerçek zamanlı akış).
+- [x] **`PlaceRepository` (Domain Interface):**
+  - `watchPlaces({PlaceFilter? filter})`: Stream dinleme (harita ve liste için gerçek zamanlı akış).
   - `getPlaceById(String id)`: Tekil mekân getirme.
   - `savePlace(Place place)`: Yeni mekân ekleme / güncelleme.
   - `deletePlace(String id)`: Mekân ve ilişkili fotoğrafları silme.
   - `toggleFavorite(String id)`: Favori durumunu tersine çevirme.
   - `updateStatus(String id, PlaceStatus newStatus)`: Ziyaret durumunu güncelleme (örn. İstek Listesinden Gezildi'ye alma).
-  - `searchPlaces(String query)`: İsim ve ada göre arama.
-- [ ] **`PlaceLocalDataSource` (Data Implementation):**
+  - `getPlaces({PlaceFilter? filter})`: Arama ve filtreleme.
+- [x] **`PlaceLocalDataSource` (Data Implementation):**
   - Drift sorgularını çalıştıran yerel veri kaynağı.
-- [ ] **`PlaceRepositoryImpl`:**
+- [x] **`PlaceRepositoryImpl`:**
   - Veri dönüştürücüleri (DTO / Drift Data Class <-> Domain Entity).
   - Silme akışı sırasında hem veritabanı kaydının silinmesini hem de dosya sistemindeki fotoğrafların güvenli temizliğini yöneten orkestrasyon.
 
 ### 2.5 Riverpod Sağlayıcıları (DI)
-- [ ] `appDatabaseProvider`: Veritabanı singleton sağlayıcısı.
-- [ ] `placeRepositoryProvider`: Repository sağlayıcısı.
-- [ ] Test ortamları için in-memory veritabanı mock/override desteği.
+- [x] `appDatabaseProvider`: Veritabanı singleton sağlayıcısı.
+- [x] `placeRepositoryProvider`: Repository sağlayıcısı.
+- [x] Test ortamları için in-memory veritabanı mock/override desteği.
 
 ### 2.6 Birim ve Entegrasyon Testleri
-- [ ] In-memory Drift veritabanı ile CRUD testleri:
+- [x] In-memory Drift veritabanı ile CRUD testleri:
   - Yeni mekân ekleme ve okuma.
   - Mekân güncelleme (`Place` alanlarının güncellenmesi).
   - Mekân silme ve ilişkili `PlacePhoto` kayıtlarının cascade silindiğinin doğrulanması.
   - Favori filtreleme, durum (`visited` / `planned`) filtreleme testleri.
   - İsim ile arama sorgusu testi.
-- [ ] Entity doğrulama testleri (geçersiz koordinat, boş isim, geçersiz puan vb.).
-- [ ] `flutter analyze` ve `flutter test` ile %100 temiz çalıştırma.
+- [x] Entity doğrulama testleri (geçersiz koordinat, boş isim, geçersiz puan vb.).
+- [x] `flutter analyze` ve `flutter test` ile %100 temiz çalıştırma.
 
 ---
 
