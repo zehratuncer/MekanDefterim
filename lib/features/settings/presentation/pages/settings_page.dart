@@ -1,11 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mekandefterim/core/theme/app_colors.dart';
+import '../controllers/theme_controller.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
+  void _showThemePicker(BuildContext context, WidgetRef ref, ThemeMode current) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: ThemeMode.values.map((mode) {
+              final isSelected = mode == current;
+              return ListTile(
+                leading: Icon(
+                  mode == ThemeMode.dark
+                      ? Icons.dark_mode_outlined
+                      : mode == ThemeMode.light
+                          ? Icons.light_mode_outlined
+                          : Icons.settings_brightness_outlined,
+                  color: isSelected ? AppColors.accent : AppColors.textMuted,
+                ),
+                title: Text(
+                  mode.labelTr,
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                trailing: isSelected
+                    ? const Icon(Icons.check_rounded, color: AppColors.accent)
+                    : null,
+                onTap: () {
+                  ref.read(themeModeProvider.notifier).setThemeMode(mode);
+                  Navigator.of(ctx).pop();
+                },
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ayarlar'),
@@ -26,23 +75,27 @@ class SettingsPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             // Tema Ayarı
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.cardBorder),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.light_mode_outlined, color: AppColors.textPrimary),
-                  SizedBox(width: 16),
-                  Text('Tema', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                  Spacer(),
-                  Text('Koyu', style: TextStyle(color: AppColors.textMuted)),
-                  SizedBox(width: 8),
-                  Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
-                ],
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => _showThemePicker(context, ref, themeMode),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.light_mode_outlined, color: AppColors.textPrimary),
+                    const SizedBox(width: 16),
+                    const Text('Tema', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                    const Spacer(),
+                    Text(themeMode.labelTr, style: const TextStyle(color: AppColors.textMuted)),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),
