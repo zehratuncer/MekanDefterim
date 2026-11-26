@@ -124,9 +124,15 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
     final filteredPlaces = _applyFilters(places);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(18),
+          ),
+        ),
         title: const Text(
-          "Mekan Defteri'm",
+          "𝐌𝐞𝐤𝐚𝐧 𝐃𝐞𝐟𝐭𝐞𝐫𝐢'𝐦",
           style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.5),
         ),
         actions: [
@@ -215,7 +221,7 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
           ),
           // Arama ve Filtre Çipleri
           Positioned(
-            top: 12,
+            top: MediaQuery.paddingOf(context).top + kToolbarHeight + 12,
             left: 16,
             right: 16,
             child: Column(
