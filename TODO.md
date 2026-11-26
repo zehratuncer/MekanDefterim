@@ -190,8 +190,9 @@ Bu fazın amacı: Harita entegrasyonu öncesinde, kullanıcının tasarımlarda 
 - [x] `PlaceDetailPage` üzerinde kaydırılabilir fotoğraf galerisi (`PageView`) ve `1 / N` sayaç rozeti.
 - [x] Silinen mekânın veya kaldırılan fotoğrafın diskteki artık dosyalarının temizlenmesi.
 - [x] Faz 5 birim testleri (`test/unit/photo_storage_service_test.dart`) ve `flutter analyze` / `flutter test` doğrulaması.
-- **Faz 6 — Arama, Filtreleme ve Son Dokunuşlar:**
-  - Çoklu filtreleme (Kategori + Durum + Favoriler).
-  - Tema ve ayarlar yönetimi.
+## 🔍 Faz 6 — Arama, Filtreleme ve Son Dokunuşlar (Tamamlandı)
+- [x] Çoklu filtreleme (Kategori + Durum + Favoriler + Arama) ve filtre temizleme akışları (`PlacesListPage`).
+- [x] Kalıcı tema yönetimi (`ThemeModeNotifier` + `AppPreferencesTable`), açık/koyu/sistem tema desteği (`AppTheme.lightTheme` & `darkTheme`) ve `SettingsPage` tema seçici.
+- [x] Faz 6 birim/widget testleri (`test/widget/phase6_settings_test.dart`) ve `flutter analyze` / `flutter test` doğrulaması.
 - **Faz 7 & 8 — Testler, Release İmzası ve Google Play Hazırlığı:**
   - API 36 hedefi, Keystore ve AAB derlemesi, 12 tester / 14 gün kapalı test süreci.
