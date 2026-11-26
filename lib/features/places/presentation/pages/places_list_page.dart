@@ -35,7 +35,7 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
       appBar: AppBar(
         title: const Text(
           '𝐊𝐨𝐥𝐞𝐤𝐬𝐢𝐲𝐨𝐧',
-          style: TextStyle(fontSize: 35),
+          style: TextStyle(fontSize: 24),
         ),
       ),
       body: Column(
