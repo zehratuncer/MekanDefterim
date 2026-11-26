@@ -14,7 +14,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify Onboarding elements
-    expect(find.text("Mekan Defteri'm"), findsOneWidget);
+    expect(find.text("𝐌𝐞𝐤𝐚𝐧 𝐃𝐞𝐟𝐭𝐞𝐫𝐢'𝐦"), findsOneWidget);
     expect(find.text('Keşfetmeye başla'), findsOneWidget);
   });
 }
