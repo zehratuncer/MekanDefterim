@@ -61,6 +61,7 @@ dev_dependencies:
   mocktail: ^1.0.5
   drift_dev: ^2.35.3
   build_runner: ^2.15.1
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -75,6 +76,13 @@ flutter:
 
   assets:
     - assets/images/
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/app_icon.jpg"
+  adaptive_icon_background: "#3D0814"
+  adaptive_icon_foreground: "assets/images/app_icon.jpg"
 
   # To add assets to your application, add an assets section, like this:
   # assets:
