@@ -198,42 +198,47 @@ class PlaceDetailPage extends ConsumerWidget {
                   const SizedBox(height: 20),
                 ],
                 // Haritada Gör Önizleme Kutusu
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.cardBorder),
+                GestureDetector(
+                  onTap: () => context.go(
+                    '/places?lat=${place.latitude}&lng=${place.longitude}',
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
-                          borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceVariant,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(Icons.map_rounded, color: AppColors.accent),
                         ),
-                        child: const Icon(Icons.map_rounded, color: AppColors.accent),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Haritada gör',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              place.addressLabel ?? 'İstanbul',
-                              style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
-                            ),
-                          ],
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Haritada gör',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                place.addressLabel ?? 'İstanbul',
+                                style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
-                    ],
+                        const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),

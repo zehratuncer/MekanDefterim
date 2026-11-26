@@ -7,6 +7,7 @@ import '../../features/places/presentation/pages/places_map_page.dart';
 import '../../features/places/presentation/pages/places_list_page.dart';
 import '../../features/places/presentation/pages/place_form_page.dart';
 import '../../features/places/presentation/pages/place_detail_page.dart';
+import '../../features/places/presentation/pages/location_picker_page.dart';
 import '../../features/wishlist/presentation/pages/wishlist_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 
@@ -29,7 +30,11 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: '/places',
-          builder: (context, state) => const PlacesMapPage(),
+          builder: (context, state) {
+            final lat = double.tryParse(state.uri.queryParameters['lat'] ?? '');
+            final lng = double.tryParse(state.uri.queryParameters['lng'] ?? '');
+            return PlacesMapPage(initialLat: lat, initialLng: lng);
+          },
         ),
         GoRoute(
           path: '/collection',
@@ -44,7 +49,21 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/places/new',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const PlaceFormPage(),
+      builder: (context, state) {
+        final picked = state.extra is PickedLocation ? state.extra as PickedLocation : null;
+        return PlaceFormPage(initialLocation: picked);
+      },
+    ),
+    GoRoute(
+      path: '/places/pick-location',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final picked = state.extra is PickedLocation ? state.extra as PickedLocation : null;
+        return LocationPickerPage(
+          initialLatitude: picked?.latitude ?? 40.9876,
+          initialLongitude: picked?.longitude ?? 29.0234,
+        );
+      },
     ),
     GoRoute(
       path: '/places/:id',
