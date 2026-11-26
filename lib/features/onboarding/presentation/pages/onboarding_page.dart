@@ -56,12 +56,21 @@ class OnboardingPage extends StatelessWidget {
               const SizedBox(height: 20),
               // Kart Önizleme Alanı
               Expanded(
-                child: Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Image.asset(
-                      'assets/images/onboarding_hero.png',
-                      fit: BoxFit.contain,
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(color: AppColors.cardBorder),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Image.asset(
+                        'assets/images/onboard.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),
