@@ -33,41 +33,20 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Koleksiyon'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_rounded, size: 28),
-            onPressed: () => context.push('/places/new'),
-          ),
-        ],
+        title: const Text('𝐊𝐨𝐥𝐞𝐤𝐬𝐢𝐲𝐨𝐧'),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Başlık ve Sayaç Alanı
+          // Sayaç Alanı
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Kendi küçük atlasın.',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${summary.total} mekân · ${summary.visited} gezildi · ${summary.planned} yeni rota',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textMuted,
-                  ),
-                ),
-              ],
+            child: Text(
+              '${summary.total} mekân · ${summary.visited} gezildi · ${summary.planned} yeni rota',
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.textMuted,
+              ),
             ),
           ),
           const SizedBox(height: 12),

@@ -18,12 +18,6 @@ class WishlistPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('İstek Listem'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_rounded, size: 28),
-            onPressed: () => context.push('/places/new'),
-          ),
-        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
