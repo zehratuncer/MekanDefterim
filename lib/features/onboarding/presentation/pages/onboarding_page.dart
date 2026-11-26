@@ -64,14 +64,11 @@ class OnboardingPage extends StatelessWidget {
                     border: Border.all(color: AppColors.cardBorder),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Center(
-                      child: Image.asset(
-                        'assets/images/onboard.png',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
+                  child: Image.asset(
+                    'assets/images/onboard.png',
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
