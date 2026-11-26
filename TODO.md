@@ -183,10 +183,13 @@ Bu fazın amacı: Harita entegrasyonu öncesinde, kullanıcının tasarımlarda 
 - [x] Haritada nokta seçerek koordinat alma (`LocationPickerPage`) ve `PlaceFormPage` ("Değiştir") + `PlaceDetailPage` ("Haritada gör") entegrasyonu.
 - [x] "Konumum" butonu ve dinamik izin yönetimi (`LocationService` — izin reddedildiğinde veya konum kapalıyken çökmeden bilgilendirme).
 - [x] Faz 4 widget testleri (`test/widget/phase4_map_test.dart`) ve `flutter analyze` / `flutter test` doğrulaması.
-- **Faz 5 — Fotoğraf ve Dosya Yönetimi:**
-  - Fotoğraf seçici (`image_picker`), uygulama özel dizinine kopyalama.
-  - Sıkıştırma ve thumbnail üretimi, en fazla 5 fotoğraf sınırı.
-  - Silinen mekânın artık dosyalarını temizleme.
+## 📸 Faz 5 — Fotoğraf ve Dosya Yönetimi (Tamamlandı)
+- [x] `image_picker` paketi ile galeri ve kamera üzerinden fotoğraf seçimi (otomatik yeniden boyutlandırma ve kalite sıkıştırması ile).
+- [x] `PhotoStorageService`: Seçilen fotoğrafların uygulama özel dizinine (`place_photos/<placeId>/`) güvenli kopyalanması.
+- [x] Bir mekâna en fazla 5 fotoğraf sınırı (`PlaceFormNotifier`) ve formda küçük önizleme şeridi / silme aksiyonu.
+- [x] `PlaceDetailPage` üzerinde kaydırılabilir fotoğraf galerisi (`PageView`) ve `1 / N` sayaç rozeti.
+- [x] Silinen mekânın veya kaldırılan fotoğrafın diskteki artık dosyalarının temizlenmesi.
+- [x] Faz 5 birim testleri (`test/unit/photo_storage_service_test.dart`) ve `flutter analyze` / `flutter test` doğrulaması.
 - **Faz 6 — Arama, Filtreleme ve Son Dokunuşlar:**
   - Çoklu filtreleme (Kategori + Durum + Favoriler).
   - Tema ve ayarlar yönetimi.

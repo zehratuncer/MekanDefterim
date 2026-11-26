@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers.dart';
 import '../../domain/entities/place.dart';
+import '../../domain/entities/place_photo.dart';
 import '../../domain/entities/place_status.dart';
 import '../../domain/repositories/place_repository.dart';
 
@@ -69,5 +70,11 @@ final wishlistPlacesStreamProvider = StreamProvider<List<Place>>((ref) {
 final placeDetailProvider = FutureProvider.family<Place?, String>((ref, id) {
   final repository = ref.watch(placeRepositoryProvider);
   return repository.getPlaceById(id);
+});
+
+/// Mekâna ait fotoğrafların canlı akışı
+final placePhotosStreamProvider = StreamProvider.family<List<PlacePhoto>, String>((ref, placeId) {
+  final repository = ref.watch(placeRepositoryProvider);
+  return repository.watchPhotosForPlace(placeId);
 });
 

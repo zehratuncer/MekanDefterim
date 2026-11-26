@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../../../core/services/photo_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/place.dart';
 import '../../domain/entities/place_category.dart';
@@ -37,6 +40,56 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
               addressLabel: widget.initialLocation!.addressLabel,
             );
       });
+    } else if (widget.initialPlace != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(placeFormNotifierProvider(widget.initialPlace).notifier).loadInitialPhotos();
+      });
+    }
+  }
+
+  Future<void> _showPhotoSourceSheet(PlaceFormNotifier notifier) async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined, color: AppColors.accent),
+                title: const Text('Galeriden seç', style: TextStyle(color: AppColors.textPrimary)),
+                onTap: () => Navigator.of(ctx).pop(ImageSource.gallery),
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt_outlined, color: AppColors.accent),
+                title: const Text('Kamera ile çek', style: TextStyle(color: AppColors.textPrimary)),
+                onTap: () => Navigator.of(ctx).pop(ImageSource.camera),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (source == null || !mounted) return;
+
+    final path = await ref.read(photoStorageServiceProvider).pickImage(source: source);
+    if (path == null || !mounted) return;
+
+    final error = notifier.addPhotoFromPath(path);
+    if (error != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.surface,
+          content: Text(error, style: const TextStyle(color: AppColors.textPrimary)),
+        ),
+      );
     }
   }
 
@@ -231,16 +284,24 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: AppColors.surface,
-                            content: Text('Fotoğraf seçimi Faz 5 ile eklenecektir.'),
-                          ),
-                        );
-                      },
+                      onPressed: formState.canAddMorePhotos
+                          ? () => _showPhotoSourceSheet(notifier)
+                          : () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  backgroundColor: AppColors.surface,
+                                  content: Text(
+                                    'Bir mekâna en fazla 5 fotoğraf eklenebilir.',
+                                    style: TextStyle(color: AppColors.textPrimary),
+                                  ),
+                                ),
+                              );
+                            },
                       icon: const Icon(Icons.add_photo_alternate_outlined, size: 20, color: AppColors.accent),
-                      label: const Text('Fotoğraf ekle', style: TextStyle(fontSize: 13)),
+                      label: Text(
+                        'Fotoğraf (${formState.photos.length}/5)',
+                        style: const TextStyle(fontSize: 13),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -274,6 +335,55 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
                   ),
                 ],
               ),
+              if (formState.photos.isNotEmpty) ...[
+                const SizedBox(height: 14),
+                SizedBox(
+                  height: 82,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: formState.photos.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 10),
+                    itemBuilder: (context, index) {
+                      final photo = formState.photos[index];
+                      return Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(14),
+                            child: Image.file(
+                              File(photo.filePath),
+                              width: 82,
+                              height: 82,
+                              fit: BoxFit.cover,
+                              cacheWidth: 240,
+                              errorBuilder: (_, _, _) => Container(
+                                width: 82,
+                                height: 82,
+                                color: AppColors.surfaceVariant,
+                                child: const Icon(Icons.broken_image_outlined, color: AppColors.textMuted),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: GestureDetector(
+                              onTap: () => notifier.removePhoto(photo.id),
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withAlpha(170),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
               const SizedBox(height: 20),
             ] else ...[
               // İstek Listem Bilgi Kutusu
