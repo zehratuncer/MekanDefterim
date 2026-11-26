@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/place.dart';
 import '../../domain/entities/place_category.dart';
 import '../../domain/entities/place_status.dart';
 import '../controllers/place_form_controller.dart';
+import 'location_picker_page.dart';
 
 class PlaceFormPage extends ConsumerStatefulWidget {
   final Place? initialPlace;
+  final PickedLocation? initialLocation;
 
-  const PlaceFormPage({super.key, this.initialPlace});
+  const PlaceFormPage({super.key, this.initialPlace, this.initialLocation});
 
   @override
   ConsumerState<PlaceFormPage> createState() => _PlaceFormPageState();
@@ -24,6 +27,17 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.initialPlace?.name ?? '');
     _noteController = TextEditingController(text: widget.initialPlace?.note ?? '');
+
+    if (widget.initialLocation != null && widget.initialPlace == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(placeFormNotifierProvider(widget.initialPlace).notifier).setLocation(
+              latitude: widget.initialLocation!.latitude,
+              longitude: widget.initialLocation!.longitude,
+              addressLabel: widget.initialLocation!.addressLabel,
+            );
+      });
+    }
   }
 
   @override
@@ -100,13 +114,22 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          backgroundColor: AppColors.surface,
-                          content: Text('Haritadan konum seçimi Faz 4 ile eklenecektir.'),
+                    onPressed: () async {
+                      final picked = await context.push<PickedLocation>(
+                        '/places/pick-location',
+                        extra: PickedLocation(
+                          latitude: formState.latitude,
+                          longitude: formState.longitude,
+                          addressLabel: formState.addressLabel ?? 'İstanbul',
                         ),
                       );
+                      if (picked != null && mounted) {
+                        notifier.setLocation(
+                          latitude: picked.latitude,
+                          longitude: picked.longitude,
+                          addressLabel: picked.addressLabel,
+                        );
+                      }
                     },
                     child: const Text('Değiştir', style: TextStyle(color: AppColors.accent)),
                   ),

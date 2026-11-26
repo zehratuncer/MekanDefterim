@@ -175,11 +175,14 @@ Bu fazın amacı: Harita entegrasyonu öncesinde, kullanıcının tasarımlarda 
   - "Gezildi olarak işaretle" butonunun durumu güncellemesi.
   - Boş liste ve arama sonucu bulunamadı durumlarının çizilmesi.
 - [x] `flutter analyze` ve `flutter test` ile tam doğrulama.
-- **Faz 4 — Harita ve Konum:**
-  - `flutter_map` + OSM uyumlu tile katmanı (atıf ve kurallara uygun).
-  - Pin gösterimi (Gezildi için yeşil tik, İstek için turuncu kalp).
-  - Haritada nokta seçerek koordinat alma.
-  - "Konumum" butonu ve dinamik izin yönetimi (izin reddedildiğinde çökmeden devam edebilme).
+## 🗺️ Faz 4 — Harita ve Konum (Tamamlandı)
+- [x] `flutter_map`, `latlong2` ve `geolocator` paketlerinin eklenmesi ve Android konum/internet izinlerinin yapılandırılması.
+- [x] OSM uyumlu tile katmanı ve `OpenStreetMap` atıf katmanı (`RichAttributionWidget`) ile `PlacesMapPage` harita entegrasyonu.
+- [x] Pin gösterimi (`PlaceMapMarker`): Gezildi için zümrüt yeşili tik, İstek için turuncu kalp; pine dokunulduğunda alt önizleme kartı ve detaya geçiş.
+- [x] Harita üzerinde arama, durum filtresi (`Tümü`, `Gezildi`, `İstekler`) ve uzun basma ile yeni mekân ekleme.
+- [x] Haritada nokta seçerek koordinat alma (`LocationPickerPage`) ve `PlaceFormPage` ("Değiştir") + `PlaceDetailPage` ("Haritada gör") entegrasyonu.
+- [x] "Konumum" butonu ve dinamik izin yönetimi (`LocationService` — izin reddedildiğinde veya konum kapalıyken çökmeden bilgilendirme).
+- [x] Faz 4 widget testleri (`test/widget/phase4_map_test.dart`) ve `flutter analyze` / `flutter test` doğrulaması.
 - **Faz 5 — Fotoğraf ve Dosya Yönetimi:**
   - Fotoğraf seçici (`image_picker`), uygulama özel dizinine kopyalama.
   - Sıkıştırma ve thumbnail üretimi, en fazla 5 fotoğraf sınırı.
