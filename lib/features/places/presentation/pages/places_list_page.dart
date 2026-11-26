@@ -33,7 +33,10 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('𝐊𝐨𝐥𝐞𝐤𝐬𝐢𝐲𝐨𝐧'),
+        title: const Text(
+          '𝐊𝐨𝐥𝐞𝐤𝐬𝐢𝐲𝐨𝐧',
+          style: TextStyle(fontSize: 35),
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
