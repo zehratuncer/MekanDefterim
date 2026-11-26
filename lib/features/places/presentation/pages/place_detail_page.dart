@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_delete_dialog.dart';
 import '../../domain/entities/place_category.dart';
+import '../../domain/entities/place_photo.dart';
 import '../../domain/entities/place_status.dart';
 import '../controllers/places_list_controller.dart';
 
@@ -54,6 +56,7 @@ class PlaceDetailPage extends ConsumerWidget {
 
           final category = PlaceCategory.fromKey(place.categoryKey);
           final isVisited = place.status == PlaceStatus.visited;
+          final photos = ref.watch(placePhotosStreamProvider(placeId)).asData?.value ?? const <PlacePhoto>[];
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -63,27 +66,9 @@ class PlaceDetailPage extends ConsumerWidget {
                 // Fotoğraf Galerisi / Placeholder Alanı
                 Stack(
                   children: [
-                    Container(
-                      width: double.infinity,
-                      height: 220,
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: AppColors.cardBorder),
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(category.icon, size: 48, color: AppColors.accent),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Fotoğraf eklenmedi',
-                              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
+                    _PhotoGalleryBanner(
+                      photos: photos,
+                      fallbackIcon: category.icon,
                     ),
                     // Sağ Üst Favori Butonu
                     Positioned(
@@ -316,6 +301,102 @@ class _Badge extends StatelessWidget {
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
+      ),
+    );
+  }
+}
+
+class _PhotoGalleryBanner extends StatefulWidget {
+  final List<PlacePhoto> photos;
+  final IconData fallbackIcon;
+
+  const _PhotoGalleryBanner({
+    required this.photos,
+    required this.fallbackIcon,
+  });
+
+  @override
+  State<_PhotoGalleryBanner> createState() => _PhotoGalleryBannerState();
+}
+
+class _PhotoGalleryBannerState extends State<_PhotoGalleryBanner> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.photos.isEmpty) {
+      return Container(
+        width: double.infinity,
+        height: 220,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceVariant,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(widget.fallbackIcon, size: 48, color: AppColors.accent),
+              const SizedBox(height: 8),
+              const Text(
+                'Fotoğraf eklenmedi',
+                style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      height: 220,
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: PageView.builder(
+              itemCount: widget.photos.length,
+              onPageChanged: (idx) => setState(() => _currentIndex = idx),
+              itemBuilder: (context, index) {
+                final photo = widget.photos[index];
+                return Image.file(
+                  File(photo.filePath),
+                  width: double.infinity,
+                  height: 220,
+                  fit: BoxFit.cover,
+                  cacheWidth: 900,
+                  errorBuilder: (_, _, _) => Container(
+                    color: AppColors.surfaceVariant,
+                    child: const Center(
+                      child: Icon(Icons.broken_image_outlined, size: 40, color: AppColors.textMuted),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Positioned(
+            bottom: 12,
+            right: 14,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withAlpha(170),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${_currentIndex + 1} / ${widget.photos.length}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
