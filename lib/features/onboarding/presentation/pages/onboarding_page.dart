@@ -56,25 +56,21 @@ class OnboardingPage extends StatelessWidget {
               const SizedBox(height: 20),
               // Kart Önizleme Alanı
               Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: AppColors.cardBorder),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Image.asset(
-                    'assets/images/onboarding_hero.png',
-                    fit: BoxFit.cover,
+                child: Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Image.asset(
+                      'assets/images/onboarding_hero.png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
               const Text(
-                'Güzel yerler,\nsende kalsın.',
+                'Güzel yerler sende kalsın.',
                 style: TextStyle(
-                  fontSize: 34,
+                  fontSize: 25,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                   height: 1.15,
