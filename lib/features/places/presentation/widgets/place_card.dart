@@ -110,30 +110,38 @@ class PlaceCard extends StatelessWidget {
                                 color: AppColors.textPrimary,
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 8),
                           ],
                           if (isVisited) ...[
                             const Icon(Icons.check_rounded, size: 14, color: AppColors.visitedText),
                             const SizedBox(width: 4),
-                            Text(
-                              place.visitedAt != null
-                                  ? 'Gezildi · ${DateFormat('d MMMM', 'tr_TR').format(place.visitedAt!)}'
-                                  : 'Gezildi',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.visitedText,
+                            Expanded(
+                              child: Text(
+                                place.visitedAt != null
+                                    ? 'Gezildi · ${DateFormat('d MMM', 'tr_TR').format(place.visitedAt!)}'
+                                    : 'Gezildi',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.visitedText,
+                                ),
                               ),
                             ),
                           ] else ...[
                             const Icon(Icons.bookmark_border_rounded, size: 14, color: AppColors.wishlistText),
                             const SizedBox(width: 4),
-                            const Text(
-                              'Gitmek istiyorum',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.wishlistText,
+                            const Expanded(
+                              child: Text(
+                                'Gitmek istiyorum',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.wishlistText,
+                                ),
                               ),
                             ),
                           ],
