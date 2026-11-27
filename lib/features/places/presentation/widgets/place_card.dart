@@ -21,16 +21,17 @@ class PlaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final category = PlaceCategory.fromKey(place.categoryKey);
     final isVisited = place.status == PlaceStatus.visited;
+    final colors = context.colors;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.cardBorder),
+        border: Border.all(color: colors.cardBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(40),
+            color: Colors.black.withAlpha(Theme.of(context).brightness == Brightness.dark ? 40 : 12),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -51,20 +52,20 @@ class PlaceCard extends StatelessWidget {
                   width: 76,
                   height: 76,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
+                    color: colors.surfaceVariant,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.cardBorder),
+                    border: Border.all(color: colors.cardBorder),
                   ),
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: isVisited ? AppColors.primary : AppColors.wishlistBadge,
+                        color: isVisited ? AppColors.primary : colors.wishlistBadge,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         isVisited ? Icons.check_rounded : category.icon,
-                        color: Colors.white,
+                        color: isVisited ? Colors.white : colors.wishlistText,
                         size: 20,
                       ),
                     ),
@@ -78,10 +79,10 @@ class PlaceCard extends StatelessWidget {
                     children: [
                       Text(
                         place.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          color: colors.textPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -89,9 +90,9 @@ class PlaceCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '${category.label} · ${place.addressLabel ?? 'İstanbul'}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textMuted,
+                          color: colors.textMuted,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -104,16 +105,16 @@ class PlaceCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               place.rating!.toDouble().toStringAsFixed(1),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                                color: colors.textPrimary,
                               ),
                             ),
                             const SizedBox(width: 8),
                           ],
                           if (isVisited) ...[
-                            const Icon(Icons.check_rounded, size: 14, color: AppColors.visitedText),
+                            Icon(Icons.check_rounded, size: 14, color: colors.visitedText),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
@@ -122,17 +123,17 @@ class PlaceCard extends StatelessWidget {
                                     : 'Gezildi',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.visitedText,
+                                  color: colors.visitedText,
                                 ),
                               ),
                             ),
                           ] else ...[
-                            const Icon(Icons.bookmark_border_rounded, size: 14, color: AppColors.wishlistText),
+                            Icon(Icons.bookmark_border_rounded, size: 14, color: colors.wishlistText),
                             const SizedBox(width: 4),
-                            const Expanded(
+                            Expanded(
                               child: Text(
                                 'Gitmek istiyorum',
                                 maxLines: 1,
@@ -140,7 +141,7 @@ class PlaceCard extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.wishlistText,
+                                  color: colors.wishlistText,
                                 ),
                               ),
                             ),
@@ -156,7 +157,7 @@ class PlaceCard extends StatelessWidget {
                   constraints: const BoxConstraints(),
                   icon: Icon(
                     place.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                    color: place.isFavorite ? AppColors.accent : AppColors.textMuted,
+                    color: place.isFavorite ? colors.accent : colors.textMuted,
                     size: 22,
                   ),
                   onPressed: onFavoriteTap,

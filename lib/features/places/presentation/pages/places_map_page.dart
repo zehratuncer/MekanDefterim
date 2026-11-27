@@ -314,12 +314,12 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                 Container(
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: AppColors.surface.withAlpha(240),
+                    color: context.colors.surface.withAlpha(245),
                     borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: AppColors.cardBorder),
+                    border: Border.all(color: context.colors.cardBorder),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha(60),
+                        color: Colors.black.withAlpha(45),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -328,12 +328,12 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                   child: TextField(
                     controller: _searchController,
                     onChanged: _onSearchChanged,
-                    style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                    style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       filled: false,
                       hintText: 'Bir mekân ya da semt ara',
-                      hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
-                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
+                      hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 14),
+                      prefixIcon: Icon(Icons.search_rounded, color: context.colors.textMuted),
                       suffixIcon: _isSearchingRemote
                           ? const Padding(
                               padding: EdgeInsets.all(14),

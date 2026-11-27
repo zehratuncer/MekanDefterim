@@ -19,6 +19,8 @@ class AppEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -29,29 +31,29 @@ class AppEmptyState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: colors.surface,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.cardBorder, width: 1.5),
+                border: Border.all(color: colors.cardBorder, width: 1.5),
               ),
-              child: Icon(icon, size: 48, color: AppColors.textSecondary),
+              child: Icon(icon, size: 48, color: colors.textSecondary),
             ),
             const SizedBox(height: 24),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textMuted,
+                color: colors.textMuted,
                 height: 1.4,
               ),
             ),

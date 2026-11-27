@@ -112,6 +112,8 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Konum seç'),
@@ -167,12 +169,12 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                 Container(
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: AppColors.surface.withAlpha(240),
+                    color: colors.surface.withAlpha(245),
                     borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: AppColors.cardBorder),
+                    border: Border.all(color: colors.cardBorder),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha(60),
+                        color: Colors.black.withAlpha(45),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -181,12 +183,12 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                   child: TextField(
                     controller: _searchController,
                     onChanged: _onSearchChanged,
-                    style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                    style: TextStyle(color: colors.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       filled: false,
                       hintText: 'Bir mekân ya da semt ara',
-                      hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
-                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
+                      hintStyle: TextStyle(color: colors.textMuted, fontSize: 14),
+                      prefixIcon: Icon(Icons.search_rounded, color: colors.textMuted),
                       suffixIcon: _isSearchingRemote
                           ? const Padding(
                               padding: EdgeInsets.all(14),
