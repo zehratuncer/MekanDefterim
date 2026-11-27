@@ -18,9 +18,12 @@ class WishlistPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          '𝐈̇𝐬𝐭𝐞𝐤 𝐋𝐢𝐬𝐭𝐞𝐦',
-          style: TextStyle(fontSize: 24),
+        title: Text(
+          'İstek Listem',
+          style: GoogleFonts.merriweather(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: Column(
