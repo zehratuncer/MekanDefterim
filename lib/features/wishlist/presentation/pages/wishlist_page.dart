@@ -38,7 +38,7 @@ class WishlistPage extends ConsumerWidget {
                 Text(
                   'Bir sonraki durağımız ne olsun?',
                   style: GoogleFonts.playfairDisplay(
-                    fontSize: 21,
+                    fontSize: 20,
                     fontWeight: FontWeight.w400,
                     color: AppColors.textPrimary,
                   ),

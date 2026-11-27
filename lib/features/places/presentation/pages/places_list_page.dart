@@ -34,9 +34,12 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          '𝐊𝐨𝐥𝐞𝐤𝐬𝐢𝐲𝐨𝐧',
-          style: TextStyle(fontSize: 26),
+        title: Text(
+          'Koleksiyon',
+          style: GoogleFonts.merriweather(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: Column(
