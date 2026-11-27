@@ -165,9 +165,10 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
+                  clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
                     color: AppColors.surface.withAlpha(240),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(28),
                     border: Border.all(color: AppColors.cardBorder),
                     boxShadow: [
                       BoxShadow(
@@ -182,6 +183,7 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                     onChanged: _onSearchChanged,
                     style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
+                      filled: false,
                       hintText: 'Bir mekân ya da semt ara',
                       hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
                       prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
