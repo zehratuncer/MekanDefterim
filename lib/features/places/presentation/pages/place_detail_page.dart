@@ -84,8 +84,8 @@ class PlaceDetailPage extends ConsumerWidget {
                             place.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                             color: place.isFavorite ? AppColors.accent : Colors.white,
                           ),
-                          onPressed: () {
-                            ref.read(placeRepositoryProvider).toggleFavorite(place.id);
+                          onPressed: () async {
+                            await ref.read(placeRepositoryProvider).toggleFavorite(place.id);
                             ref.invalidate(placeDetailProvider(placeId));
                           },
                         ),

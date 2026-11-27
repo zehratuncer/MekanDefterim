@@ -113,7 +113,10 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
                   isSelected: filter.status == PlaceStatus.visited,
                   onTap: () {
                     ref.read(placeFilterStateProvider.notifier).update(
-                          filter.copyWith(status: filter.status == PlaceStatus.visited ? null : PlaceStatus.visited),
+                          filter.copyWith(
+                            status: filter.status == PlaceStatus.visited ? null : PlaceStatus.visited,
+                            isFavoriteOnly: null,
+                          ),
                         );
                   },
                 ),
@@ -126,7 +129,10 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
                   isSelected: filter.status == PlaceStatus.planned,
                   onTap: () {
                     ref.read(placeFilterStateProvider.notifier).update(
-                          filter.copyWith(status: filter.status == PlaceStatus.planned ? null : PlaceStatus.planned),
+                          filter.copyWith(
+                            status: filter.status == PlaceStatus.planned ? null : PlaceStatus.planned,
+                            isFavoriteOnly: null,
+                          ),
                         );
                   },
                 ),
@@ -137,7 +143,10 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
                   isSelected: filter.isFavoriteOnly == true,
                   onTap: () {
                     ref.read(placeFilterStateProvider.notifier).update(
-                          filter.copyWith(isFavoriteOnly: filter.isFavoriteOnly == true ? null : true),
+                          filter.copyWith(
+                            isFavoriteOnly: filter.isFavoriteOnly == true ? null : true,
+                            status: null,
+                          ),
                         );
                   },
                 ),
