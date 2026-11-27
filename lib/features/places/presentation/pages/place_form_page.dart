@@ -28,17 +28,23 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.initialPlace?.name ?? '');
+    _nameController = TextEditingController(
+      text: widget.initialPlace?.name ?? widget.initialLocation?.name ?? '',
+    );
     _noteController = TextEditingController(text: widget.initialPlace?.note ?? '');
 
     if (widget.initialLocation != null && widget.initialPlace == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref.read(placeFormNotifierProvider(widget.initialPlace).notifier).setLocation(
-              latitude: widget.initialLocation!.latitude,
-              longitude: widget.initialLocation!.longitude,
-              addressLabel: widget.initialLocation!.addressLabel,
-            );
+        final notifier = ref.read(placeFormNotifierProvider(widget.initialPlace).notifier);
+        if (widget.initialLocation!.name != null && widget.initialLocation!.name!.isNotEmpty) {
+          notifier.setName(widget.initialLocation!.name!);
+        }
+        notifier.setLocation(
+          latitude: widget.initialLocation!.latitude,
+          longitude: widget.initialLocation!.longitude,
+          addressLabel: widget.initialLocation!.addressLabel,
+        );
       });
     } else if (widget.initialPlace != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
