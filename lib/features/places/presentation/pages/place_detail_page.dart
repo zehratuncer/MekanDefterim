@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_delete_dialog.dart';
@@ -184,46 +186,97 @@ class PlaceDetailPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 20),
                 ],
-                // Haritada Gör Önizleme Kutusu
+                // Haritada Gör Önizleme Kartı
                 GestureDetector(
                   onTap: () => context.go(
                     '/places?lat=${place.latitude}&lng=${place.longitude}',
                   ),
                   child: Container(
-                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: AppColors.cardBorder),
                     ),
-                    child: Row(
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(16),
+                        SizedBox(
+                          height: 150,
+                          width: double.infinity,
+                          child: IgnorePointer(
+                            child: FlutterMap(
+                              options: MapOptions(
+                                initialCenter: LatLng(place.latitude, place.longitude),
+                                initialZoom: 15.5,
+                                interactionOptions: const InteractionOptions(
+                                  flags: InteractiveFlag.none,
+                                ),
+                              ),
+                              children: [
+                                TileLayer(
+                                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  userAgentPackageName: 'com.zehratuncer.mekandefterim',
+                                ),
+                                MarkerLayer(
+                                  markers: [
+                                    Marker(
+                                      point: LatLng(place.latitude, place.longitude),
+                                      width: 40,
+                                      height: 40,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: isVisited ? AppColors.primary : AppColors.wishlistBadge,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: Colors.white, width: 2.5),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withAlpha(90),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          isVisited ? Icons.check_rounded : category.icon,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                          child: const Icon(Icons.map_rounded, color: AppColors.accent),
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          child: Row(
                             children: [
-                              const Text(
-                                'Haritada gör',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                              const Icon(Icons.map_rounded, color: AppColors.accent, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Haritada gör',
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      place.addressLabel ?? 'İstanbul',
+                                      style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                place.addressLabel ?? 'İstanbul',
-                                style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
-                              ),
+                              const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
                             ],
                           ),
                         ),
-                        const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
                       ],
                     ),
                   ),
