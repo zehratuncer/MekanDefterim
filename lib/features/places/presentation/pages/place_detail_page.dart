@@ -23,24 +23,6 @@ class PlaceDetailPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mekân detayı'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_outline_rounded),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => AppDeleteDialog(
-                  onConfirm: () async {
-                    await ref.read(placeRepositoryProvider).deletePlace(placeId);
-                    if (context.mounted) {
-                      context.pop();
-                    }
-                  },
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: placeAsync.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
@@ -63,46 +45,66 @@ class PlaceDetailPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Fotoğraf Galerisi / Placeholder Alanı
-                Stack(
-                  children: [
-                    _PhotoGalleryBanner(
-                      photos: photos,
-                      fallbackIcon: category.icon,
-                    ),
-                    // Sağ Üst Favori Butonu
-                    Positioned(
-                      top: 14,
-                      right: 14,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.surface.withAlpha(200),
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            place.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                            color: place.isFavorite ? AppColors.accent : Colors.white,
+                if (isVisited) ...[
+                  // Fotoğraf Galerisi / Placeholder Alanı (yalnızca gezilen mekânlarda)
+                  Stack(
+                    children: [
+                      _PhotoGalleryBanner(
+                        photos: photos,
+                        fallbackIcon: category.icon,
+                      ),
+                      // Sağ Üst Favori Butonu
+                      Positioned(
+                        top: 14,
+                        right: 14,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.surface.withAlpha(200),
+                            shape: BoxShape.circle,
                           ),
-                          onPressed: () async {
-                            await ref.read(placeRepositoryProvider).toggleFavorite(place.id);
-                            ref.invalidate(placeDetailProvider(placeId));
-                          },
+                          child: IconButton(
+                            icon: Icon(
+                              place.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                              color: place.isFavorite ? AppColors.accent : Colors.white,
+                            ),
+                            onPressed: () async {
+                              await ref.read(placeRepositoryProvider).toggleFavorite(place.id);
+                              ref.invalidate(placeDetailProvider(placeId));
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                ],
+                // Mekân Adı ve Semt
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        place.name,
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                          letterSpacing: -0.5,
                         ),
                       ),
                     ),
+                    if (!isVisited)
+                      IconButton(
+                        icon: Icon(
+                          place.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                          color: place.isFavorite ? AppColors.accent : Colors.white,
+                        ),
+                        onPressed: () async {
+                          await ref.read(placeRepositoryProvider).toggleFavorite(place.id);
+                          ref.invalidate(placeDetailProvider(placeId));
+                        },
+                      ),
                   ],
-                ),
-                const SizedBox(height: 20),
-                // Mekân Adı ve Semt
-                Text(
-                  place.name,
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                    letterSpacing: -0.5,
-                  ),
                 ),
                 const SizedBox(height: 6),
                 Row(
@@ -122,7 +124,7 @@ class PlaceDetailPage extends ConsumerWidget {
                     _Badge(label: category.label),
                     const SizedBox(width: 8),
                     _Badge(
-                      label: isVisited ? '✓ Gezildi' : '♡ İstek',
+                      label: isVisited ? '✓ Gezildi' : 'İstek',
                       color: isVisited ? AppColors.visitedBadge : AppColors.wishlistBadge,
                       textColor: isVisited ? AppColors.visitedText : AppColors.wishlistText,
                     ),
