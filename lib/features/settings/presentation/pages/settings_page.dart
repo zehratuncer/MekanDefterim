@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mekandefterim/app/providers.dart';
+import 'package:mekandefterim/core/data/mock_places_seed.dart';
 import 'package:mekandefterim/core/theme/app_colors.dart';
 import '../controllers/theme_controller.dart';
 
@@ -164,6 +167,70 @@ class SettingsPage extends ConsumerWidget {
                 ],
               ),
             ),
+            if (kDebugMode) ...[
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.science_outlined, color: AppColors.accent, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Test Verileri (Debug)',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              await MockPlacesSeed.seed(ref.read(placeRepositoryProvider));
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('8 örnek mekân eklendi.'),
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.add_location_alt_outlined, size: 18),
+                            label: const Text('Örnek Yükle'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () async {
+                              await MockPlacesSeed.clear(ref.read(placeRepositoryProvider));
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Örnek mekânlar temizlendi.'),
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                            label: const Text('Temizle'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 32),
             Center(
               child: Column(
