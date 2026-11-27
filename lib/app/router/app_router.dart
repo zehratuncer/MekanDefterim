@@ -151,8 +151,8 @@ class _ScaffoldWithNavBar extends StatelessWidget {
               label: 'Koleksiyon',
             ),
             NavigationDestination(
-              icon: Icon(Icons.favorite_outline_rounded),
-              selectedIcon: Icon(Icons.favorite_rounded, color: Colors.white),
+              icon: Icon(Icons.bookmark_border_rounded),
+              selectedIcon: Icon(Icons.bookmark_rounded, color: Colors.white),
               label: 'İstek Listem',
             ),
           ],

@@ -65,7 +65,7 @@ class WishlistPage extends ConsumerWidget {
               data: (places) {
                 if (places.isEmpty) {
                   return AppEmptyState(
-                    icon: Icons.favorite_border_rounded,
+                    icon: Icons.bookmark_border_rounded,
                     title: 'İstek listen henüz boş',
                     subtitle: 'Gitmek istediğin yerleri kaydet, vakti geldiğinde ziyaret edip gezildi olarak işaretle.',
                     actionLabel: 'Yeni İstek Ekle',
