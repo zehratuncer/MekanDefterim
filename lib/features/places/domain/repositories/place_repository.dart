@@ -2,6 +2,8 @@ import '../entities/place.dart';
 import '../entities/place_photo.dart';
 import '../entities/place_status.dart';
 
+const _unset = Object();
+
 class PlaceFilter {
   final String? searchQuery;
   final String? categoryKey;
@@ -16,16 +18,16 @@ class PlaceFilter {
   });
 
   PlaceFilter copyWith({
-    String? searchQuery,
-    String? categoryKey,
-    PlaceStatus? status,
-    bool? isFavoriteOnly,
+    Object? searchQuery = _unset,
+    Object? categoryKey = _unset,
+    Object? status = _unset,
+    Object? isFavoriteOnly = _unset,
   }) {
     return PlaceFilter(
-      searchQuery: searchQuery ?? this.searchQuery,
-      categoryKey: categoryKey ?? this.categoryKey,
-      status: status ?? this.status,
-      isFavoriteOnly: isFavoriteOnly ?? this.isFavoriteOnly,
+      searchQuery: identical(searchQuery, _unset) ? this.searchQuery : searchQuery as String?,
+      categoryKey: identical(categoryKey, _unset) ? this.categoryKey : categoryKey as String?,
+      status: identical(status, _unset) ? this.status : status as PlaceStatus?,
+      isFavoriteOnly: identical(isFavoriteOnly, _unset) ? this.isFavoriteOnly : isFavoriteOnly as bool?,
     );
   }
 }

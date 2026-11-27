@@ -126,7 +126,7 @@ class PlaceCard extends StatelessWidget {
                               ),
                             ),
                           ] else ...[
-                            const Icon(Icons.favorite_outline_rounded, size: 14, color: AppColors.wishlistText),
+                            const Icon(Icons.bookmark_border_rounded, size: 14, color: AppColors.wishlistText),
                             const SizedBox(width: 4),
                             const Text(
                               'Gitmek istiyorum',

@@ -119,7 +119,10 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
                 ),
                 const SizedBox(width: 8),
                 _FilterChip(
-                  label: '♡ İstekler',
+                  label: 'İstekler',
+                  icon: filter.status == PlaceStatus.planned
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
                   isSelected: filter.status == PlaceStatus.planned,
                   onTap: () {
                     ref.read(placeFilterStateProvider.notifier).update(
