@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/place_search_service.dart';
@@ -175,9 +176,12 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
             bottom: Radius.circular(18),
           ),
         ),
-        title: const Text(
-          "𝐌𝐞𝐤𝐚𝐧 𝐃𝐞𝐟𝐭𝐞𝐫𝐢'𝐦",
-          style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.5),
+        title: Text(
+          "Mekan Defteri'm",
+          style: GoogleFonts.merriweather(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
           IconButton(
