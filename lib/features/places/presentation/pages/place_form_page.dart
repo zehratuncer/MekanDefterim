@@ -110,21 +110,6 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? 'Mekânı Düzenle' : 'Yeni Mekân'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Center(
-              child: Text(
-                '2 / 2',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textMuted.withAlpha(200),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
