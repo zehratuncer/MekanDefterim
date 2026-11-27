@@ -41,9 +41,21 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Alt Başlık
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 8, 20, 4),
+            child: Text(
+              'Keşfettiğin her yer, tek defterde.',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
           // Sayaç Alanı
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: Text(
               '${summary.total} mekân · ${summary.visited} gezildi · ${summary.planned} yeni rota',
               style: const TextStyle(
