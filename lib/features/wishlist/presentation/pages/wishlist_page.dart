@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -17,7 +18,10 @@ class WishlistPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('İstek Listem'),
+        title: const Text(
+          '𝐈̇𝐬𝐭𝐞𝐤 𝐋𝐢𝐬𝐭𝐞𝐦',
+          style: TextStyle(fontSize: 24),
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,13 +32,12 @@ class WishlistPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Bir sonraki durağın?',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
+                Text(
+                  'Bir sonraki durağımız ne olsun?',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w400,
                     color: AppColors.textPrimary,
-                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 4),
