@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -35,20 +36,20 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
       appBar: AppBar(
         title: const Text(
           '𝐊𝐨𝐥𝐞𝐤𝐬𝐢𝐲𝐨𝐧',
-          style: TextStyle(fontSize: 24),
+          style: TextStyle(fontSize: 26),
         ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Alt Başlık
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 8, 20, 4),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
             child: Text(
               'Keşfettiğin her yer, tek defterde.',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 21,
+                fontWeight: FontWeight.w400,
                 color: AppColors.textPrimary,
               ),
             ),
