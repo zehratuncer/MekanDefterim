@@ -9,11 +9,13 @@ class PickedLocation {
   final double latitude;
   final double longitude;
   final String addressLabel;
+  final String? name;
 
   const PickedLocation({
     required this.latitude,
     required this.longitude,
     required this.addressLabel,
+    this.name,
   });
 }
 

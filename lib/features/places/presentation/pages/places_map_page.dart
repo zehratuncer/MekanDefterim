@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/services/location_service.dart';
+import '../../../../core/services/place_search_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/place.dart';
 import '../../domain/entities/place_category.dart';
@@ -34,10 +36,15 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
 
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
+  final PlaceSearchService _searchService = PlaceSearchService();
 
+  Timer? _searchDebounce;
   PlaceStatus? _statusFilter;
   String _searchQuery = '';
   Place? _selectedPlace;
+  PlaceSearchResult? _selectedSearchResult;
+  List<PlaceSearchResult> _remoteResults = const [];
+  bool _isSearchingRemote = false;
   LatLng? _userLocation;
   bool _isLocating = false;
 
@@ -61,9 +68,46 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     _mapController.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() {
+      _searchQuery = value;
+      if (value.trim().length < 2) {
+        _remoteResults = const [];
+        _isSearchingRemote = false;
+      }
+    });
+
+    _searchDebounce?.cancel();
+    final trimmed = value.trim();
+    if (trimmed.length < 2) return;
+
+    _searchDebounce = Timer(const Duration(milliseconds: 450), () async {
+      if (!mounted) return;
+      setState(() => _isSearchingRemote = true);
+      final results = await _searchService.search(trimmed);
+      if (!mounted || _searchController.text.trim() != trimmed) return;
+      setState(() {
+        _remoteResults = results;
+        _isSearchingRemote = false;
+      });
+    });
+  }
+
+  void _selectRemoteResult(PlaceSearchResult result) {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _selectedSearchResult = result;
+      _selectedPlace = null;
+      _remoteResults = const [];
+      _isSearchingRemote = false;
+    });
+    _mapController.move(LatLng(result.latitude, result.longitude), 16.0);
   }
 
   Future<void> _goToMyLocation() async {
@@ -152,8 +196,12 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
               minZoom: 3,
               maxZoom: 19,
               onTap: (_, _) {
-                if (_selectedPlace != null) {
-                  setState(() => _selectedPlace = null);
+                if (_selectedPlace != null || _selectedSearchResult != null || _remoteResults.isNotEmpty) {
+                  setState(() {
+                    _selectedPlace = null;
+                    _selectedSearchResult = null;
+                    _remoteResults = const [];
+                  });
                 }
               },
               onLongPress: (_, point) => _openNewPlaceAt(point),
@@ -211,6 +259,38 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                   );
                 }).toList(),
               ),
+              if (_selectedSearchResult != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: LatLng(
+                        _selectedSearchResult!.latitude,
+                        _selectedSearchResult!.longitude,
+                      ),
+                      width: 44,
+                      height: 44,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.accent,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(100),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.add_location_alt_rounded,
+                          color: AppColors.backgroundDark,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               const RichAttributionWidget(
                 alignment: AttributionAlignment.bottomLeft,
                 attributions: [
@@ -242,21 +322,39 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                   ),
                   child: TextField(
                     controller: _searchController,
-                    onChanged: (value) => setState(() => _searchQuery = value),
+                    onChanged: _onSearchChanged,
                     style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Bir mekân ya da semt ara',
                       hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
                       prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.close_rounded, color: AppColors.textMuted, size: 18),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() => _searchQuery = '');
-                              },
+                      suffixIcon: _isSearchingRemote
+                          ? const Padding(
+                              padding: EdgeInsets.all(14),
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.accent,
+                                ),
+                              ),
                             )
-                          : null,
+                          : _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.close_rounded, color: AppColors.textMuted, size: 18),
+                                  onPressed: () {
+                                    _searchDebounce?.cancel();
+                                    _searchController.clear();
+                                    setState(() {
+                                      _searchQuery = '';
+                                      _remoteResults = const [];
+                                      _isSearchingRemote = false;
+                                      _selectedSearchResult = null;
+                                    });
+                                  },
+                                )
+                              : null,
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
@@ -264,6 +362,65 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                     ),
                   ),
                 ),
+                if (_remoteResults.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    constraints: const BoxConstraints(maxHeight: 240),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface.withAlpha(248),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.cardBorder),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(90),
+                          blurRadius: 14,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: ListView.separated(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      shrinkWrap: true,
+                      itemCount: _remoteResults.length,
+                      separatorBuilder: (_, _) => const Divider(
+                        height: 1,
+                        color: AppColors.divider,
+                        indent: 44,
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = _remoteResults[index];
+                        return ListTile(
+                          dense: true,
+                          leading: const Icon(
+                            Icons.location_on_outlined,
+                            color: AppColors.accent,
+                            size: 20,
+                          ),
+                          title: Text(
+                            item.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          subtitle: Text(
+                            item.addressLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                          onTap: () => _selectRemoteResult(item),
+                        );
+                      },
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 10),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -302,6 +459,85 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                 place: _selectedPlace!,
                 onClose: () => setState(() => _selectedPlace = null),
                 onOpenDetail: () => context.push('/places/${_selectedPlace!.id}'),
+              ),
+            )
+          else if (_selectedSearchResult != null)
+            Positioned(
+              left: 16,
+              right: 84,
+              bottom: 20,
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.surface.withAlpha(245),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.cardBorder),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(100),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_rounded, color: AppColors.accent, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _selectedSearchResult!.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          icon: const Icon(Icons.close_rounded, color: AppColors.textMuted, size: 18),
+                          onPressed: () => setState(() => _selectedSearchResult = null),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _selectedSearchResult!.addressLabel,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          final result = _selectedSearchResult!;
+                          setState(() => _selectedSearchResult = null);
+                          context.push(
+                            '/places/new',
+                            extra: PickedLocation(
+                              latitude: result.latitude,
+                              longitude: result.longitude,
+                              addressLabel: result.addressLabel,
+                              name: result.name,
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.add_rounded, size: 18),
+                        label: const Text('Bu mekânı ekle'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
         ],
