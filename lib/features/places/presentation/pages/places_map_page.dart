@@ -212,8 +212,7 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-                subdomains: const ['a', 'b', 'c', 'd'],
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.zehratuncer.mekandefterim',
                 tileProvider: widget.tileProvider,
                 keepBuffer: 4,
@@ -306,7 +305,6 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                 alignment: AttributionAlignment.bottomLeft,
                 attributions: [
                   TextSourceAttribution('© OpenStreetMap katkıda bulunanları'),
-                  TextSourceAttribution('© CARTO'),
                 ],
               ),
             ],
