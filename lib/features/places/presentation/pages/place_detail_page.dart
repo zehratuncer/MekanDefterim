@@ -222,6 +222,11 @@ class PlaceDetailPage extends ConsumerWidget {
                                 TileLayer(
                                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                   userAgentPackageName: 'com.zehratuncer.mekandefterim',
+                                  keepBuffer: 2,
+                                  maxNativeZoom: 19,
+                                  tileDisplay: const TileDisplay.fadeIn(
+                                    duration: Duration(milliseconds: 150),
+                                  ),
                                 ),
                                 MarkerLayer(
                                   markers: [

@@ -215,6 +215,12 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.zehratuncer.mekandefterim',
                 tileProvider: widget.tileProvider,
+                keepBuffer: 4,
+                panBuffer: 1,
+                maxNativeZoom: 19,
+                tileDisplay: const TileDisplay.fadeIn(
+                  duration: Duration(milliseconds: 150),
+                ),
               ),
               if (_userLocation != null)
                 MarkerLayer(
@@ -298,7 +304,7 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
               const RichAttributionWidget(
                 alignment: AttributionAlignment.bottomLeft,
                 attributions: [
-                  TextSourceAttribution('OpenStreetMap katkıda bulunanları'),
+                  TextSourceAttribution('© OpenStreetMap katkıda bulunanları'),
                 ],
               ),
             ],

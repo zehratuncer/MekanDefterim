@@ -140,6 +140,12 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.zehratuncer.mekandefterim',
                 tileProvider: widget.tileProvider,
+                keepBuffer: 4,
+                panBuffer: 1,
+                maxNativeZoom: 19,
+                tileDisplay: const TileDisplay.fadeIn(
+                  duration: Duration(milliseconds: 150),
+                ),
               ),
               MarkerLayer(
                 markers: [
