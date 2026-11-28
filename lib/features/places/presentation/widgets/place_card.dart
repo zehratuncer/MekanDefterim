@@ -1,11 +1,15 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/place.dart';
 import '../../domain/entities/place_category.dart';
+import '../../domain/entities/place_photo.dart';
 import '../../domain/entities/place_status.dart';
+import '../controllers/places_list_controller.dart';
 
-class PlaceCard extends StatelessWidget {
+class PlaceCard extends ConsumerWidget {
   final Place place;
   final VoidCallback onTap;
   final VoidCallback onFavoriteTap;
@@ -18,10 +22,15 @@ class PlaceCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final category = PlaceCategory.fromKey(place.categoryKey);
     final isVisited = place.status == PlaceStatus.visited;
     final colors = context.colors;
+    final photos = isVisited
+        ? (ref.watch(placePhotosStreamProvider(place.id)).asData?.value ?? const <PlacePhoto>[])
+        : const <PlacePhoto>[];
+    final firstPhotoFile = photos.isNotEmpty ? File(photos.first.filePath) : null;
+    final hasValidPhoto = firstPhotoFile != null && firstPhotoFile.existsSync();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -47,29 +56,37 @@ class PlaceCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Sol Görsel / Harita Pin Önizleme Kutusu
+                // Sol Görsel / Fotoğraf Önizleme Kutusu
                 Container(
                   width: 76,
                   height: 76,
+                  clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
                     color: colors.surfaceVariant,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: colors.cardBorder),
                   ),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isVisited ? AppColors.primary : colors.wishlistBadge,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isVisited ? Icons.check_rounded : category.icon,
-                        color: isVisited ? Colors.white : colors.wishlistText,
-                        size: 20,
-                      ),
-                    ),
-                  ),
+                  child: hasValidPhoto
+                      ? Image.file(
+                          firstPhotoFile,
+                          width: 76,
+                          height: 76,
+                          fit: BoxFit.cover,
+                        )
+                      : Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isVisited ? AppColors.primary : colors.wishlistBadge,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isVisited ? Icons.check_rounded : category.icon,
+                              color: isVisited ? Colors.white : colors.wishlistText,
+                              size: 20,
+                            ),
+                          ),
+                        ),
                 ),
                 const SizedBox(width: 14),
                 // Orta Bilgi Alanı
