@@ -7,6 +7,10 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final colors = context.colors;
+    final titleColor = isLight ? AppColors.background : AppColors.textPrimary;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -21,13 +25,13 @@ class OnboardingPage extends StatelessWidget {
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
-                      child: const Text(
+                      child: Text(
                         "𝐌𝐞𝐤𝐚𝐧 𝐃𝐞𝐟𝐭𝐞𝐫𝐢'𝐦",
                         maxLines: 1,
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: titleColor,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -73,36 +77,36 @@ class OnboardingPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Güzel yerler sende kalsın.',
                 style: TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: titleColor,
                   height: 1.15,
                   letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Gezdiğin yerleri hatırla. Gitmek istediklerini biriktir. Kendi keşif haritanı oluştur.',
                 style: TextStyle(
                   fontSize: 15,
-                  color: AppColors.textSecondary,
+                  color: colors.textSecondary,
                   height: 1.4,
                 ),
               ),
               const SizedBox(height: 24),
               Row(
                 children: [
-                  const Icon(Icons.lock_outline_rounded, size: 18, color: AppColors.accent),
+                  Icon(Icons.lock_outline_rounded, size: 18, color: colors.accent),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Hesap gerekmez. Kayıtların yalnızca bu cihazda saklanır.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textMuted.withAlpha(220),
+                        color: colors.textMuted,
                       ),
                     ),
                   ),
