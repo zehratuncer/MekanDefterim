@@ -234,18 +234,18 @@ Bu fazın amacı: Harita entegrasyonu öncesinde, kullanıcının tasarımlarda 
 ---
 
 ## 9.0 Tasarım sistemi (temel)
-- [ ] **Renk tokenları:** bordo zemin, kart rengi, altın vurgu (`#E8B27A`), biraz daha parlak/doygun zümrüt yeşil, metin renkleri. Tek yerden yönet (`AppTheme`/renk dosyası).
-- [ ] **Kart stili:** Hafif gradient (üstten alta), 1px açık üst kenar parlaması, tutarlı gölge.
-- [ ] **Köşe yarıçapı standardı:** 16 / 20 / 28 token olsun, her yerde aynısı kullanılsın.
-- [ ] **Tipografi:** Tüm ekran başlıkları serif (Playfair/Lora). "Yeni Mekân", "Konum seç", "Mekân detayı" şu an sans-serif, serif'e çekilecek.
-- [ ] **Arka plan dokusu:** Çok hafif kâğıt/grain dokusu (düşük opaklık).
-- [ ] **Animasyon standardı:** Süre 200–300 ms, `easeOutCubic`; yaylanma için spring. Ortak sabitler dosyası.
-- [ ] **`PressableScale` widget'ı:** Basınca scale 0.96 + haptic. Tüm dokunulabilir kart/butonlarda kullanılacak.
-- [ ] **Haptic yardımcısı:** Kalp, tik, kaydet, sekme değişimi ve uzun basma için.
-- [ ] **Erişilebilirlik:** İkincil metin ve placeholder kontrastı WCAG AA (≥ 4.5:1) seviyesine çıkarılacak.
-- [ ] **Üst bar dili:** Haritadaki bordo gövdeli başlık ile diğer ekranlardaki düz başlık arasında tek stil seçilecek.
-- [ ] **Ortak widget'lar:** `AppCard`, `AppChip`, `PressableScale`, `StaggeredList`, `ShimmerCard` (`AppEmptyState` zaten var, güncellenecek).
-- [ ] **Açık tema uyumu:** Her yeni stil açık temada da (Faz 6'da eklenen) kontrol edilecek.
+- [x] **Renk tokenları:** bordo zemin, kart rengi, altın vurgu (`#E8B27A`), biraz daha parlak/doygun zümrüt yeşil, metin renkleri. Tek yerden yönet (`AppTheme`/renk dosyası).
+- [x] **Kart stili:** Hafif gradient (üstten alta), 1px açık üst kenar parlaması, tutarlı gölge.
+- [x] **Köşe yarıçapı standardı:** 16 / 20 / 28 token olsun, her yerde aynısı kullanılsın.
+- [x] **Tipografi:** Tüm ekran başlıkları serif (Playfair/Lora). "Yeni Mekân", "Konum seç", "Mekân detayı" şu an sans-serif, serif'e çekilecek.
+- [x] **Arka plan dokusu:** Çok hafif kâğıt/grain dokusu (düşük opaklık).
+- [x] **Animasyon standardı:** Süre 200–300 ms, `easeOutCubic`; yaylanma için spring. Ortak sabitler dosyası.
+- [x] **`PressableScale` widget'ı:** Basınca scale 0.96 + haptic. Tüm dokunulabilir kart/butonlarda kullanılacak.
+- [x] **Haptic yardımcısı:** Kalp, tik, kaydet, sekme değişimi ve uzun basma için.
+- [x] **Erişilebilirlik:** İkincil metin ve placeholder kontrastı WCAG AA (≥ 4.5:1) seviyesine çıkarılacak.
+- [x] **Üst bar dili:** Haritadaki bordo gövdeli başlık ile diğer ekranlardaki düz başlık arasında tek stil seçilecek.
+- [x] **Ortak widget'lar:** `AppCard`, `AppChip`, `PressableScale`, `StaggeredList`, `ShimmerCard` (`AppEmptyState` zaten var, güncellenecek).
+- [x] **Açık tema uyumu:** Her yeni stil açık temada da (Faz 6'da eklenen) kontrol edilecek.
 
 ## 9.1 Genel geçişler ve altyapı
 - [ ] **Sayfa geçişleri:** Varsayılan kaydırma yerine detayda Hero/container transform, sekmeler arasında yatay fade-through, alt sayfalarda shared axis (GoRouter `pageBuilder`).

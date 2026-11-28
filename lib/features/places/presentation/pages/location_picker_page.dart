@@ -5,6 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/services/place_search_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
+import '../../../../core/utils/app_haptics.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/pressable_scale.dart';
 
 class PickedLocation {
   final double latitude;
@@ -43,6 +47,8 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
 
   Timer? _searchDebounce;
   late LatLng _selectedPoint;
+  String? _selectedName;
+  String? _selectedAddress;
   String _searchQuery = '';
   List<PlaceSearchResult> _remoteResults = const [];
   bool _isSearchingRemote = false;
@@ -60,6 +66,10 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
     _mapController.dispose();
     super.dispose();
   }
+
+  String get _currentAddressLabel =>
+      _selectedAddress ??
+      '${_selectedPoint.latitude.toStringAsFixed(4)}, ${_selectedPoint.longitude.toStringAsFixed(4)}';
 
   void _onSearchChanged(String value) {
     setState(() {
@@ -88,24 +98,24 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
 
   void _selectRemoteResult(PlaceSearchResult result) {
     FocusScope.of(context).unfocus();
-    Navigator.of(context).pop(
-      PickedLocation(
-        latitude: result.latitude,
-        longitude: result.longitude,
-        addressLabel: result.addressLabel,
-        name: result.name,
-      ),
-    );
+    setState(() {
+      _selectedPoint = LatLng(result.latitude, result.longitude);
+      _selectedName = result.name;
+      _selectedAddress = result.addressLabel;
+      _remoteResults = const [];
+      _isSearchingRemote = false;
+    });
+    _mapController.move(_selectedPoint, 16.0);
   }
 
-  void _selectPointOnMap(LatLng point) {
-    final label =
-        '${point.latitude.toStringAsFixed(4)}, ${point.longitude.toStringAsFixed(4)}';
+  void _confirmSelection() {
+    AppHaptics.check();
     Navigator.of(context).pop(
       PickedLocation(
-        latitude: point.latitude,
-        longitude: point.longitude,
-        addressLabel: label,
+        latitude: _selectedPoint.latitude,
+        longitude: _selectedPoint.longitude,
+        addressLabel: _currentAddressLabel,
+        name: _selectedName,
       ),
     );
   }
@@ -128,11 +138,13 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
               minZoom: 3,
               maxZoom: 19,
               onTap: (_, point) {
+                AppHaptics.tap();
                 setState(() {
                   _selectedPoint = point;
+                  _selectedName = null;
+                  _selectedAddress = null;
                   _remoteResults = const [];
                 });
-                _selectPointOnMap(point);
               },
             ),
             children: [
@@ -175,16 +187,10 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                 Container(
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: colors.surface.withAlpha(245),
-                    borderRadius: BorderRadius.circular(28),
+                    color: colors.surface.withValues(alpha: 0.96),
+                    borderRadius: AppRadius.borderLg,
                     border: Border.all(color: colors.cardBorder),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(45),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    boxShadow: colors.cardShadow,
                   ),
                   child: TextField(
                     controller: _searchController,
@@ -194,24 +200,25 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                       filled: false,
                       hintText: 'Bir mekân ya da semt ara',
                       hintStyle: TextStyle(color: colors.textMuted, fontSize: 14),
-                      prefixIcon: Icon(Icons.search_rounded, color: colors.textMuted),
+                      prefixIcon:
+                          Icon(Icons.search_rounded, color: colors.textMuted),
                       suffixIcon: _isSearchingRemote
-                          ? const Padding(
-                              padding: EdgeInsets.all(14),
+                          ? Padding(
+                              padding: const EdgeInsets.all(14),
                               child: SizedBox(
                                 width: 16,
                                 height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: AppColors.accent,
+                                  color: colors.accent,
                                 ),
                               ),
                             )
                           : _searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.close_rounded,
-                                    color: AppColors.textMuted,
+                                    color: colors.textMuted,
                                     size: 18,
                                   ),
                                   onPressed: () {
@@ -228,7 +235,10 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                     ),
                   ),
                 ),
@@ -237,41 +247,35 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                   Container(
                     constraints: const BoxConstraints(maxHeight: 260),
                     decoration: BoxDecoration(
-                      color: AppColors.surface.withAlpha(248),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.cardBorder),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(90),
-                          blurRadius: 14,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
+                      color: colors.surface.withValues(alpha: 0.97),
+                      borderRadius: AppRadius.borderMd,
+                      border: Border.all(color: colors.cardBorder),
+                      boxShadow: colors.cardShadow,
                     ),
                     child: ListView.separated(
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       shrinkWrap: true,
                       itemCount: _remoteResults.length,
-                      separatorBuilder: (_, _) => const Divider(
+                      separatorBuilder: (_, _) => Divider(
                         height: 1,
-                        color: AppColors.divider,
+                        color: colors.divider,
                         indent: 44,
                       ),
                       itemBuilder: (context, index) {
                         final item = _remoteResults[index];
                         return ListTile(
                           dense: true,
-                          leading: const Icon(
+                          leading: Icon(
                             Icons.location_on_outlined,
-                            color: AppColors.accent,
+                            color: colors.accent,
                             size: 20,
                           ),
                           title: Text(
                             item.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
+                            style: TextStyle(
+                              color: colors.textPrimary,
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                             ),
@@ -280,8 +284,8 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                             item.addressLabel,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.textMuted,
+                            style: TextStyle(
+                              color: colors.textMuted,
                               fontSize: 12,
                             ),
                           ),
@@ -292,6 +296,65 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                   ),
                 ],
               ],
+            ),
+          ),
+          // Alt Konum Onay Kartı
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 20,
+            child: SafeArea(
+              top: false,
+              child: AppCard(
+                radius: AppRadius.md,
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_rounded,
+                          color: colors.accent,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _selectedName ?? _currentAddressLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_selectedName != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        _currentAddressLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: colors.textMuted, fontSize: 12),
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    PressableScale.button(
+                      enableHaptic: false,
+                      child: ElevatedButton.icon(
+                        onPressed: _confirmSelection,
+                        icon: const Icon(Icons.check_rounded, size: 20),
+                        label: const Text('Bu konumu seç'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],

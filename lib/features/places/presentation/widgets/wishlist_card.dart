@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
+import '../../../../core/utils/app_haptics.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/pressable_scale.dart';
 import '../../domain/entities/place.dart';
 import '../../domain/entities/place_category.dart';
 
@@ -20,93 +24,90 @@ class WishlistCard extends StatelessWidget {
     final category = PlaceCategory.fromKey(place.categoryKey);
     final colors = context.colors;
 
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: colors.cardBorder),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            InkWell(
-              onTap: onTap,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Sol Kategori İkon Kutusu
-                  Container(
-                    width: 58,
-                    height: 58,
-                    decoration: BoxDecoration(
-                      color: colors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: colors.cardBorder),
-                    ),
-                    child: Icon(
-                      category.icon,
-                      color: colors.accent,
-                      size: 28,
-                    ),
+      radius: AppRadius.md,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PressableScale(
+            onTap: onTap,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Sol Kategori İkon Kutusu
+                Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: colors.surfaceVariant,
+                    borderRadius: AppRadius.borderSm,
+                    border: Border.all(color: colors.cardBorder),
                   ),
-                  const SizedBox(width: 14),
-                  // Orta Bilgiler
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          place.name,
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: colors.textPrimary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                  child: Icon(
+                    category.icon,
+                    color: colors.accent,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                // Orta Bilgiler
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        place.name,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: colors.textPrimary,
                         ),
-                        const SizedBox(height: 4),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${category.label} · ${place.addressLabel ?? 'İstanbul'}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colors.textMuted,
+                        ),
+                      ),
+                      if (place.note != null && place.note!.isNotEmpty) ...[
+                        const SizedBox(height: 6),
                         Text(
-                          '${category.label} · ${place.addressLabel ?? 'İstanbul'}',
+                          '“${place.note}”',
                           style: TextStyle(
                             fontSize: 13,
-                            color: colors.textMuted,
+                            fontStyle: FontStyle.italic,
+                            color: colors.textSecondary,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        if (place.note != null && place.note!.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            '“${place.note}”',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontStyle: FontStyle.italic,
-                              color: colors.textSecondary,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
                       ],
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 14),
-            // Gezildi Olarak İşaretle Butonu
-            SizedBox(
+          ),
+          const SizedBox(height: 14),
+          // Gezildi Olarak İşaretle Butonu (≥ 48dp dokunma alanı + tik haptic)
+          PressableScale.button(
+            hapticFeedback: AppHaptics.check,
+            child: SizedBox(
               width: double.infinity,
-              height: 42,
+              height: 48,
               child: OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: colors.surfaceVariant,
+                  backgroundColor: colors.visitedBadge,
                   foregroundColor: colors.visitedText,
                   side: const BorderSide(color: AppColors.primary),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: AppRadius.borderSm,
                   ),
                 ),
                 onPressed: onMarkVisited,
@@ -117,8 +118,8 @@ class WishlistCard extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

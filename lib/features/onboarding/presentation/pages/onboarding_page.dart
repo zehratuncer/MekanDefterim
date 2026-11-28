@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mekandefterim/core/theme/app_colors.dart';
+import 'package:mekandefterim/core/theme/app_radius.dart';
+import 'package:mekandefterim/core/theme/app_typography.dart';
+import 'package:mekandefterim/core/widgets/app_card.dart';
+import 'package:mekandefterim/core/widgets/pressable_scale.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
@@ -9,7 +13,7 @@ class OnboardingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final colors = context.colors;
-    final titleColor = isLight ? AppColors.background : AppColors.textPrimary;
+    final titleColor = isLight ? AppColors.background : colors.textPrimary;
 
     return Scaffold(
       body: SafeArea(
@@ -39,19 +43,22 @@ class OnboardingPage extends StatelessWidget {
                   ),
                   const SizedBox(width: 14),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.cardBorder),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
                     ),
-                    child: const Text(
+                    decoration: BoxDecoration(
+                      color: colors.surface,
+                      borderRadius: AppRadius.borderSm,
+                      border: Border.all(color: colors.cardBorder),
+                    ),
+                    child: Text(
                       'KEŞİF GÜNLÜĞÜN',
                       style: TextStyle(
                         fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.accent,
-                        letterSpacing: 0.4,
+                        fontWeight: FontWeight.w700,
+                        color: colors.accent,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
@@ -60,14 +67,8 @@ class OnboardingPage extends StatelessWidget {
               const SizedBox(height: 20),
               // Kart Önizleme Alanı
               Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: AppColors.cardBorder),
-                  ),
-                  clipBehavior: Clip.antiAlias,
+                child: AppCard(
+                  radius: AppRadius.lg,
                   child: Image.asset(
                     'assets/images/onboard.png',
                     width: double.infinity,
@@ -79,12 +80,11 @@ class OnboardingPage extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 'Güzel yerler sende kalsın.',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w800,
+                style: AppTypography.serif(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
                   color: titleColor,
-                  height: 1.15,
-                  letterSpacing: -0.5,
+                  height: 1.18,
                 ),
               ),
               const SizedBox(height: 12),
@@ -93,13 +93,17 @@ class OnboardingPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   color: colors.textSecondary,
-                  height: 1.4,
+                  height: 1.45,
                 ),
               ),
               const SizedBox(height: 24),
               Row(
                 children: [
-                  Icon(Icons.lock_outline_rounded, size: 18, color: colors.accent),
+                  Icon(
+                    Icons.lock_outline_rounded,
+                    size: 18,
+                    color: colors.accent,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -113,15 +117,17 @@ class OnboardingPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => context.go('/places'),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Keşfetmeye başla'),
-                    SizedBox(width: 8),
-                    Icon(Icons.arrow_forward_rounded, size: 20),
-                  ],
+              PressableScale.button(
+                child: ElevatedButton(
+                  onPressed: () => context.go('/places'),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Keşfetmeye başla'),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward_rounded, size: 20),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 12),

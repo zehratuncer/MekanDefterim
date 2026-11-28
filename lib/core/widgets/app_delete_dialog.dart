@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_radius.dart';
+import '../theme/app_typography.dart';
 
 class AppDeleteDialog extends StatelessWidget {
   final String title;
@@ -9,37 +11,52 @@ class AppDeleteDialog extends StatelessWidget {
   const AppDeleteDialog({
     super.key,
     this.title = 'Mekânı Sil',
-    this.content = 'Bu mekânı silmek istediğine emin misin? İlişkili fotoğraflar da cihazından temizlenecektir.',
+    this.content =
+        'Bu mekânı silmek istediğine emin misin? İlişkili fotoğraflar da cihazından temizlenecektir.',
     required this.onConfirm,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return AlertDialog(
-      backgroundColor: AppColors.surface,
+      backgroundColor: colors.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: AppColors.cardBorder),
+        borderRadius: AppRadius.borderLg,
+        side: BorderSide(color: colors.cardBorder),
       ),
       title: Text(
         title,
-        style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+        style: AppTypography.serif(
+          color: colors.textPrimary,
+          fontSize: 21,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       content: Text(
         content,
-        style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.4),
+        style: TextStyle(
+          color: colors.textSecondary,
+          fontSize: 14,
+          height: 1.45,
+        ),
       ),
       actions: [
         TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: const Size(88, 48),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderSm),
+          ),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Vazgeç', style: TextStyle(color: AppColors.textMuted)),
+          child: Text('Vazgeç', style: TextStyle(color: colors.textMuted)),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.error,
             foregroundColor: Colors.white,
-            minimumSize: const Size(100, 42),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            minimumSize: const Size(104, 48),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadius.borderSm),
           ),
           onPressed: () {
             Navigator.of(context).pop();

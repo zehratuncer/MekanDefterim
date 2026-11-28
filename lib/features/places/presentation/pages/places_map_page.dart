@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/place_search_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
+import '../../../../core/utils/app_haptics.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_chip.dart';
 import '../../domain/entities/place.dart';
 import '../../domain/entities/place_category.dart';
 import '../../domain/entities/place_status.dart';
@@ -125,12 +128,12 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
       setState(() => _userLocation = point);
       _mapController.move(point, 15.0);
     } else if (result.message != null) {
+      final colors = context.colors;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: AppColors.surface,
           content: Text(
             result.message!,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: TextStyle(color: colors.textPrimary),
           ),
         ),
       );
@@ -153,6 +156,7 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
   }
 
   void _openNewPlaceAt(LatLng point) {
+    AppHaptics.longPress();
     final picked = PickedLocation(
       latitude: point.latitude,
       longitude: point.longitude,
@@ -167,24 +171,17 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
     final placesAsync = ref.watch(allPlacesStreamProvider);
     final places = placesAsync.asData?.value ?? const <Place>[];
     final filteredPlaces = _applyFilters(places);
+    final colors = context.colors;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      // Diğer ekranlarla tek üst bar dili: düz kenar, serif başlık, temaya duyarlı yüzey
       appBar: AppBar(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(18),
-          ),
-        ),
-        title: Text(
-          "Mekan Defteri'm",
-          style: GoogleFonts.merriweather(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        backgroundColor: colors.background.withValues(alpha: 0.94),
+        title: const Text("Mekan Defteri'm"),
         actions: [
           IconButton(
+            tooltip: 'Ayarlar',
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push('/settings'),
           ),
@@ -200,7 +197,9 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
               minZoom: 3,
               maxZoom: 19,
               onTap: (_, _) {
-                if (_selectedPlace != null || _selectedSearchResult != null || _remoteResults.isNotEmpty) {
+                if (_selectedPlace != null ||
+                    _selectedSearchResult != null ||
+                    _remoteResults.isNotEmpty) {
                   setState(() {
                     _selectedPlace = null;
                     _selectedSearchResult = null;
@@ -257,6 +256,7 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                       place: place,
                       isSelected: isSelected,
                       onTap: () {
+                        AppHaptics.tap();
                         setState(() => _selectedPlace = place);
                         _mapController.move(
                           LatLng(place.latitude, place.longitude),
@@ -320,41 +320,40 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                 Container(
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: context.colors.surface.withAlpha(245),
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: context.colors.cardBorder),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(45),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    color: colors.surface.withValues(alpha: 0.96),
+                    borderRadius: AppRadius.borderLg,
+                    border: Border.all(color: colors.cardBorder),
+                    boxShadow: colors.cardShadow,
                   ),
                   child: TextField(
                     controller: _searchController,
                     onChanged: _onSearchChanged,
-                    style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
+                    style: TextStyle(color: colors.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       filled: false,
                       hintText: 'Bir mekân ya da semt ara',
-                      hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 14),
-                      prefixIcon: Icon(Icons.search_rounded, color: context.colors.textMuted),
+                      hintStyle: TextStyle(color: colors.textMuted, fontSize: 14),
+                      prefixIcon:
+                          Icon(Icons.search_rounded, color: colors.textMuted),
                       suffixIcon: _isSearchingRemote
-                          ? const Padding(
-                              padding: EdgeInsets.all(14),
+                          ? Padding(
+                              padding: const EdgeInsets.all(14),
                               child: SizedBox(
                                 width: 16,
                                 height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: AppColors.accent,
+                                  color: colors.accent,
                                 ),
                               ),
                             )
                           : _searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.close_rounded, color: AppColors.textMuted, size: 18),
+                                  icon: Icon(
+                                    Icons.close_rounded,
+                                    color: colors.textMuted,
+                                    size: 18,
+                                  ),
                                   onPressed: () {
                                     _searchDebounce?.cancel();
                                     _searchController.clear();
@@ -370,7 +369,10 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                     ),
                   ),
                 ),
@@ -379,41 +381,35 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                   Container(
                     constraints: const BoxConstraints(maxHeight: 240),
                     decoration: BoxDecoration(
-                      color: AppColors.surface.withAlpha(248),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.cardBorder),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(90),
-                          blurRadius: 14,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
+                      color: colors.surface.withValues(alpha: 0.97),
+                      borderRadius: AppRadius.borderMd,
+                      border: Border.all(color: colors.cardBorder),
+                      boxShadow: colors.cardShadow,
                     ),
                     child: ListView.separated(
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       shrinkWrap: true,
                       itemCount: _remoteResults.length,
-                      separatorBuilder: (_, _) => const Divider(
+                      separatorBuilder: (_, _) => Divider(
                         height: 1,
-                        color: AppColors.divider,
+                        color: colors.divider,
                         indent: 44,
                       ),
                       itemBuilder: (context, index) {
                         final item = _remoteResults[index];
                         return ListTile(
                           dense: true,
-                          leading: const Icon(
+                          leading: Icon(
                             Icons.location_on_outlined,
-                            color: AppColors.accent,
+                            color: colors.accent,
                             size: 20,
                           ),
                           title: Text(
                             item.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
+                            style: TextStyle(
+                              color: colors.textPrimary,
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                             ),
@@ -422,8 +418,8 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                             item.addressLabel,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.textMuted,
+                            style: TextStyle(
+                              color: colors.textMuted,
                               fontSize: 12,
                             ),
                           ),
@@ -433,27 +429,35 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 10),
+                const SizedBox(height: 6),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildChip(
+                      AppChip(
                         label: 'Tümü (${places.length})',
                         isSelected: _statusFilter == null,
+                        unselectedBackgroundColor:
+                            colors.surface.withValues(alpha: 0.94),
                         onTap: () => setState(() => _statusFilter = null),
                       ),
                       const SizedBox(width: 8),
-                      _buildChip(
+                      AppChip(
                         label: '✓ Gezildi',
                         isSelected: _statusFilter == PlaceStatus.visited,
-                        onTap: () => setState(() => _statusFilter = PlaceStatus.visited),
+                        unselectedBackgroundColor:
+                            colors.surface.withValues(alpha: 0.94),
+                        onTap: () =>
+                            setState(() => _statusFilter = PlaceStatus.visited),
                       ),
                       const SizedBox(width: 8),
-                      _buildChip(
+                      AppChip(
                         label: '♡ İstekler',
                         isSelected: _statusFilter == PlaceStatus.planned,
-                        onTap: () => setState(() => _statusFilter = PlaceStatus.planned),
+                        unselectedBackgroundColor:
+                            colors.surface.withValues(alpha: 0.94),
+                        onTap: () =>
+                            setState(() => _statusFilter = PlaceStatus.planned),
                       ),
                     ],
                   ),
@@ -470,7 +474,8 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
               child: _SelectedPlaceCard(
                 place: _selectedPlace!,
                 onClose: () => setState(() => _selectedPlace = null),
-                onOpenDetail: () => context.push('/places/${_selectedPlace!.id}'),
+                onOpenDetail: () =>
+                    context.push('/places/${_selectedPlace!.id}'),
               ),
             )
           else if (_selectedSearchResult != null)
@@ -478,45 +483,46 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
               left: 16,
               right: 84,
               bottom: 20,
-              child: Container(
+              child: AppCard(
+                radius: AppRadius.md,
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.surface.withAlpha(245),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.cardBorder),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(100),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.location_on_rounded, color: AppColors.accent, size: 20),
+                        Icon(
+                          Icons.location_on_rounded,
+                          color: colors.accent,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _selectedSearchResult!.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.bold,
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.w700,
                               fontSize: 15,
                             ),
                           ),
                         ),
                         IconButton(
                           padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          icon: const Icon(Icons.close_rounded, color: AppColors.textMuted, size: 18),
-                          onPressed: () => setState(() => _selectedSearchResult = null),
+                          constraints: const BoxConstraints(
+                            minWidth: 36,
+                            minHeight: 36,
+                          ),
+                          icon: Icon(
+                            Icons.close_rounded,
+                            color: colors.textMuted,
+                            size: 18,
+                          ),
+                          onPressed: () =>
+                              setState(() => _selectedSearchResult = null),
                         ),
                       ],
                     ),
@@ -525,7 +531,7 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
                       _selectedSearchResult!.addressLabel,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                      style: TextStyle(color: colors.textMuted, fontSize: 12),
                     ),
                     const SizedBox(height: 12),
                     SizedBox(
@@ -560,16 +566,16 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
           FloatingActionButton.small(
             heroTag: 'my_location',
             tooltip: 'Konumum',
-            backgroundColor: AppColors.surface,
-            foregroundColor: AppColors.textPrimary,
+            backgroundColor: colors.surface,
+            foregroundColor: colors.textPrimary,
             onPressed: _isLocating ? null : _goToMyLocation,
             child: _isLocating
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.accent,
+                      color: colors.accent,
                     ),
                   )
                 : const Icon(Icons.my_location_rounded),
@@ -580,38 +586,13 @@ class _PlacesMapPageState extends ConsumerState<PlacesMapPage> {
             tooltip: 'Yeni mekân ekle',
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
-            onPressed: () => context.push('/places/new'),
+            onPressed: () {
+              AppHaptics.tap();
+              context.push('/places/new');
+            },
             child: const Icon(Icons.add_rounded, size: 30),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildChip({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surface.withAlpha(240),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryLight : AppColors.cardBorder,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-            fontSize: 13,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
       ),
     );
   }
@@ -632,69 +613,58 @@ class _SelectedPlaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final category = PlaceCategory.fromKey(place.categoryKey);
     final isVisited = place.status == PlaceStatus.visited;
+    final colors = context.colors;
 
-    return GestureDetector(
+    return AppCard(
+      radius: AppRadius.md,
+      padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
       onTap: onOpenDetail,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.cardBorder),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(90),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: colors.surfaceVariant,
+              borderRadius: AppRadius.borderSm,
+              border: Border.all(color: colors.cardBorder),
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(category.icon, color: AppColors.accent, size: 22),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    place.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: AppColors.textPrimary,
-                    ),
+            child: Icon(category.icon, color: colors.accent, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  place.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: colors.textPrimary,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${category.label} · ${isVisited ? "Gezildi" : "İstek"}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textMuted,
-                    ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${category.label} · ${isVisited ? "Gezildi" : "İstek"}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colors.textMuted,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.textMuted),
-              onPressed: onClose,
-            ),
-          ],
-        ),
+          ),
+          IconButton(
+            icon: Icon(Icons.close_rounded, size: 18, color: colors.textMuted),
+            onPressed: onClose,
+          ),
+        ],
       ),
     );
   }

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/providers.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_chip.dart';
 import '../../../../core/widgets/app_empty_state.dart';
-import 'package:mekandefterim/features/places/domain/entities/place_category.dart';
+import '../../../../core/widgets/shimmer_card.dart';
+import '../../../../core/widgets/staggered_list.dart';
+import '../../domain/entities/place_category.dart';
 import '../../domain/entities/place_status.dart';
 import '../controllers/places_list_controller.dart';
 import '../widgets/place_card.dart';
@@ -31,29 +34,24 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
     final summary = ref.watch(placesSummaryProvider);
     final filter = ref.watch(placeFilterStateProvider);
     final placesAsync = ref.watch(filteredPlacesStreamProvider);
+    final colors = context.colors;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Koleksiyon',
-          style: GoogleFonts.merriweather(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('Koleksiyon'),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Alt Başlık
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
             child: Text(
               'Keşfettiğin her yer, tek defterde.',
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 21,
-                fontWeight: FontWeight.w400,
-                color: context.colors.textPrimary,
+              style: AppTypography.serif(
+                color: colors.textPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -64,7 +62,7 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
               '${summary.total} mekân · ${summary.visited} gezildi · ${summary.planned} yeni rota',
               style: TextStyle(
                 fontSize: 13,
-                color: context.colors.textMuted,
+                color: colors.textMuted,
               ),
             ),
           ),
@@ -75,18 +73,26 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
             child: TextField(
               controller: _searchController,
               onChanged: (val) {
+                setState(() {});
                 ref.read(placeFilterStateProvider.notifier).update(
-                      filter.copyWith(searchQuery: val.trim().isEmpty ? null : val.trim()),
+                      filter.copyWith(
+                        searchQuery: val.trim().isEmpty ? null : val.trim(),
+                      ),
                     );
               },
               decoration: InputDecoration(
                 hintText: 'Moda, kafe, sahil...',
-                prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
+                prefixIcon: Icon(Icons.search_rounded, color: colors.textMuted),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear_rounded, size: 20, color: AppColors.textMuted),
+                        icon: Icon(
+                          Icons.clear_rounded,
+                          size: 20,
+                          color: colors.textMuted,
+                        ),
                         onPressed: () {
                           _searchController.clear();
+                          setState(() {});
                           ref.read(placeFilterStateProvider.notifier).update(
                                 filter.copyWith(searchQuery: null),
                               );
@@ -96,35 +102,39 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
               ),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 8),
           // Filtre Çipleri
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                _FilterChip(
+                AppChip(
                   label: 'Tümü',
-                  isSelected: filter.categoryKey == null && filter.status == null && filter.isFavoriteOnly != true,
+                  isSelected: filter.categoryKey == null &&
+                      filter.status == null &&
+                      filter.isFavoriteOnly != true,
                   onTap: () {
                     ref.read(placeFilterStateProvider.notifier).clear();
                   },
                 ),
                 const SizedBox(width: 8),
-                _FilterChip(
+                AppChip(
                   label: '✓ Gezildi',
                   isSelected: filter.status == PlaceStatus.visited,
                   onTap: () {
                     ref.read(placeFilterStateProvider.notifier).update(
                           filter.copyWith(
-                            status: filter.status == PlaceStatus.visited ? null : PlaceStatus.visited,
+                            status: filter.status == PlaceStatus.visited
+                                ? null
+                                : PlaceStatus.visited,
                             isFavoriteOnly: null,
                           ),
                         );
                   },
                 ),
                 const SizedBox(width: 8),
-                _FilterChip(
+                AppChip(
                   label: 'İstekler',
                   icon: filter.status == PlaceStatus.planned
                       ? Icons.bookmark_rounded
@@ -133,21 +143,24 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
                   onTap: () {
                     ref.read(placeFilterStateProvider.notifier).update(
                           filter.copyWith(
-                            status: filter.status == PlaceStatus.planned ? null : PlaceStatus.planned,
+                            status: filter.status == PlaceStatus.planned
+                                ? null
+                                : PlaceStatus.planned,
                             isFavoriteOnly: null,
                           ),
                         );
                   },
                 ),
                 const SizedBox(width: 8),
-                _FilterChip(
+                AppChip(
                   label: 'Favoriler',
                   icon: Icons.favorite_rounded,
                   isSelected: filter.isFavoriteOnly == true,
                   onTap: () {
                     ref.read(placeFilterStateProvider.notifier).update(
                           filter.copyWith(
-                            isFavoriteOnly: filter.isFavoriteOnly == true ? null : true,
+                            isFavoriteOnly:
+                                filter.isFavoriteOnly == true ? null : true,
                             status: null,
                           ),
                         );
@@ -158,12 +171,16 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
                 ...PlaceCategory.values.map((cat) {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: _FilterChip(
+                    child: AppChip(
                       label: cat.label,
                       isSelected: filter.categoryKey == cat.key,
                       onTap: () {
                         ref.read(placeFilterStateProvider.notifier).update(
-                              filter.copyWith(categoryKey: filter.categoryKey == cat.key ? null : cat.key),
+                              filter.copyWith(
+                                categoryKey: filter.categoryKey == cat.key
+                                    ? null
+                                    : cat.key,
+                              ),
                             );
                       },
                     ),
@@ -172,31 +189,41 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
           // Liste Alanı
           Expanded(
             child: placesAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+              loading: () => const ShimmerCardList(),
               error: (err, stack) => Center(
-                child: Text('Kayıtlar yüklenemedi: $err', style: const TextStyle(color: AppColors.error)),
+                child: Text(
+                  'Kayıtlar yüklenemedi: $err',
+                  style: const TextStyle(color: AppColors.error),
+                ),
               ),
               data: (places) {
                 if (places.isEmpty) {
                   final isFiltered = filter.categoryKey != null ||
                       filter.status != null ||
                       filter.isFavoriteOnly == true ||
-                      (filter.searchQuery != null && filter.searchQuery!.isNotEmpty);
+                      (filter.searchQuery != null &&
+                          filter.searchQuery!.isNotEmpty);
 
                   return AppEmptyState(
-                    icon: isFiltered ? Icons.search_off_rounded : Icons.bookmark_border_rounded,
-                    title: isFiltered ? 'Eşleşen mekân bulunamadı' : 'Henüz bir mekân eklemedin',
+                    icon: isFiltered
+                        ? Icons.search_off_rounded
+                        : Icons.bookmark_border_rounded,
+                    title: isFiltered
+                        ? 'Eşleşen mekân bulunamadı'
+                        : 'Henüz bir mekân eklemedin',
                     subtitle: isFiltered
                         ? 'Filtreleri sıfırlayarak tüm kayıtlarını görebilirsin.'
                         : 'Gezdiğin veya keşfetmek istediğin ilk noktayı ekleyerek kendi defterini oluştur.',
-                    actionLabel: isFiltered ? 'Filtreleri Temizle' : 'İlk mekânını ekle',
+                    actionLabel:
+                        isFiltered ? 'Filtreleri Temizle' : 'İlk mekânını ekle',
                     onAction: () {
                       if (isFiltered) {
                         _searchController.clear();
+                        setState(() {});
                         ref.read(placeFilterStateProvider.notifier).clear();
                       } else {
                         context.push('/places/new');
@@ -205,8 +232,9 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
                   );
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                return StaggeredList(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   itemCount: places.length,
                   itemBuilder: (context, index) {
                     final place = places[index];
@@ -214,7 +242,9 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
                       place: place,
                       onTap: () => context.push('/places/${place.id}'),
                       onFavoriteTap: () {
-                        ref.read(placeRepositoryProvider).toggleFavorite(place.id);
+                        ref
+                            .read(placeRepositoryProvider)
+                            .toggleFavorite(place.id);
                       },
                     );
                   },
@@ -223,56 +253,6 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final IconData? icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.label,
-    this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : colors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryLight : colors.cardBorder,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 14, color: isSelected ? Colors.white : colors.accent),
-              const SizedBox(width: 6),
-            ],
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : colors.textSecondary,
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

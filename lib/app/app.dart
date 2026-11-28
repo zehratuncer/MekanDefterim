@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/app_theme.dart';
+import '../core/widgets/paper_grain_background.dart';
 import '../features/settings/presentation/controllers/theme_controller.dart';
 import 'router/app_router.dart';
 
@@ -18,6 +19,11 @@ class MekanDefterimApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
       routerConfig: appRouter,
+      builder: (context, child) {
+        return PaperGrainOverlay(
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }
