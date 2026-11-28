@@ -33,9 +33,7 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
     final placesAsync = ref.watch(filteredPlacesStreamProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFF8DE2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFF8DE2),
         title: Text(
           'Koleksiyon',
           style: GoogleFonts.merriweather(
