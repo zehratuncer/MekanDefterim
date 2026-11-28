@@ -220,8 +220,14 @@ class PlaceDetailPage extends ConsumerWidget {
                               ),
                               children: [
                                 TileLayer(
-                                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                                  subdomains: const ['a', 'b', 'c', 'd'],
                                   userAgentPackageName: 'com.zehratuncer.mekandefterim',
+                                  keepBuffer: 2,
+                                  maxNativeZoom: 19,
+                                  tileDisplay: const TileDisplay.fadeIn(
+                                    duration: Duration(milliseconds: 150),
+                                  ),
                                 ),
                                 MarkerLayer(
                                   markers: [

@@ -137,9 +137,16 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.zehratuncer.mekandefterim',
                 tileProvider: widget.tileProvider,
+                keepBuffer: 4,
+                panBuffer: 1,
+                maxNativeZoom: 19,
+                tileDisplay: const TileDisplay.fadeIn(
+                  duration: Duration(milliseconds: 150),
+                ),
               ),
               MarkerLayer(
                 markers: [
