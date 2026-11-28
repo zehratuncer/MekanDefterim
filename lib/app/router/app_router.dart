@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/app_haptics.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/places/domain/entities/place.dart';
 import '../../features/places/presentation/pages/places_map_page.dart';
@@ -108,7 +109,10 @@ class _ScaffoldWithNavBar extends StatelessWidget {
     return 0;
   }
 
-  void _onItemTapped(int index, BuildContext context) {
+  void _onItemTapped(int index, int currentIndex, BuildContext context) {
+    if (index != currentIndex) {
+      AppHaptics.tabChange();
+    }
     switch (index) {
       case 0:
         context.go('/places');
@@ -137,7 +141,7 @@ class _ScaffoldWithNavBar extends StatelessWidget {
         ),
         child: NavigationBar(
           selectedIndex: selectedIndex,
-          onDestinationSelected: (idx) => _onItemTapped(idx, context),
+          onDestinationSelected: (idx) => _onItemTapped(idx, selectedIndex, context),
           backgroundColor: colors.navBarBackground,
           indicatorColor: AppColors.primary,
           destinations: const [

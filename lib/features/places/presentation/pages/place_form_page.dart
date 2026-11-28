@@ -5,6 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/services/photo_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
+import '../../../../core/utils/app_haptics.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/pressable_scale.dart';
 import '../../domain/entities/place.dart';
 import '../../domain/entities/place_category.dart';
 import '../../domain/entities/place_status.dart';
@@ -31,13 +35,16 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
     _nameController = TextEditingController(
       text: widget.initialPlace?.name ?? widget.initialLocation?.name ?? '',
     );
-    _noteController = TextEditingController(text: widget.initialPlace?.note ?? '');
+    _noteController =
+        TextEditingController(text: widget.initialPlace?.note ?? '');
 
     if (widget.initialLocation != null && widget.initialPlace == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        final notifier = ref.read(placeFormNotifierProvider(widget.initialPlace).notifier);
-        if (widget.initialLocation!.name != null && widget.initialLocation!.name!.isNotEmpty) {
+        final notifier =
+            ref.read(placeFormNotifierProvider(widget.initialPlace).notifier);
+        if (widget.initialLocation!.name != null &&
+            widget.initialLocation!.name!.isNotEmpty) {
           notifier.setName(widget.initialLocation!.name!);
         }
         notifier.setLocation(
@@ -49,17 +56,20 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
     } else if (widget.initialPlace != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref.read(placeFormNotifierProvider(widget.initialPlace).notifier).loadInitialPhotos();
+        ref
+            .read(placeFormNotifierProvider(widget.initialPlace).notifier)
+            .loadInitialPhotos();
       });
     }
   }
 
   Future<void> _showPhotoSourceSheet(PlaceFormNotifier notifier) async {
+    final colors = context.colors;
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: colors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: AppRadius.sheetTop,
       ),
       builder: (ctx) => SafeArea(
         child: Padding(
@@ -68,13 +78,20 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.photo_library_outlined, color: AppColors.accent),
-                title: const Text('Galeriden seç', style: TextStyle(color: AppColors.textPrimary)),
+                leading:
+                    Icon(Icons.photo_library_outlined, color: colors.accent),
+                title: Text(
+                  'Galeriden seç',
+                  style: TextStyle(color: colors.textPrimary),
+                ),
                 onTap: () => Navigator.of(ctx).pop(ImageSource.gallery),
               ),
               ListTile(
-                leading: const Icon(Icons.camera_alt_outlined, color: AppColors.accent),
-                title: const Text('Kamera ile çek', style: TextStyle(color: AppColors.textPrimary)),
+                leading: Icon(Icons.camera_alt_outlined, color: colors.accent),
+                title: Text(
+                  'Kamera ile çek',
+                  style: TextStyle(color: colors.textPrimary),
+                ),
                 onTap: () => Navigator.of(ctx).pop(ImageSource.camera),
               ),
             ],
@@ -85,15 +102,18 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
 
     if (source == null || !mounted) return;
 
-    final path = await ref.read(photoStorageServiceProvider).pickImage(source: source);
+    final path =
+        await ref.read(photoStorageServiceProvider).pickImage(source: source);
     if (path == null || !mounted) return;
 
     final error = notifier.addPhotoFromPath(path);
     if (error != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: AppColors.surface,
-          content: Text(error, style: const TextStyle(color: AppColors.textPrimary)),
+          content: Text(
+            error,
+            style: TextStyle(color: context.colors.textPrimary),
+          ),
         ),
       );
     }
@@ -109,8 +129,9 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
   @override
   Widget build(BuildContext context) {
     final formState = ref.watch(placeFormNotifierProvider(widget.initialPlace));
-    final notifier = ref.read(placeFormNotifierProvider(widget.initialPlace).notifier);
-
+    final notifier =
+        ref.read(placeFormNotifierProvider(widget.initialPlace).notifier);
+    final colors = context.colors;
     final isEdit = widget.initialPlace != null;
 
     return Scaffold(
@@ -123,22 +144,22 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Konum Kutusu
-            Container(
+            AppCard(
+              radius: AppRadius.md,
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.cardBorder),
-              ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(12),
+                      color: colors.surfaceVariant,
+                      borderRadius: AppRadius.borderSm,
                     ),
-                    child: const Icon(Icons.location_on_rounded, color: AppColors.accent, size: 22),
+                    child: Icon(
+                      Icons.location_on_rounded,
+                      color: colors.accent,
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -147,12 +168,19 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
                       children: [
                         Text(
                           formState.addressLabel ?? 'İstanbul',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            color: colors.textPrimary,
+                          ),
                         ),
                         const SizedBox(height: 2),
-                        const Text(
+                        Text(
                           'Konum seçildi',
-                          style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                          style: TextStyle(
+                            color: colors.textMuted,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -175,16 +203,26 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
                         );
                       }
                     },
-                    child: const Text('Değiştir', style: TextStyle(color: AppColors.accent)),
+                    child: Text(
+                      'Değiştir',
+                      style: TextStyle(
+                        color: colors.accent,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
             // Mekân Adı
-            const Text(
+            Text(
               'Mekân adı',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: colors.textPrimary,
+              ),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -197,46 +235,60 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
             ),
             const SizedBox(height: 20),
             // Kategori
-            const Text(
+            Text(
               'Kategori',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: colors.textPrimary,
+              ),
             ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.cardBorder),
+                color: colors.surface,
+                borderRadius: AppRadius.borderSm,
+                border: Border.all(color: colors.cardBorder),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: formState.categoryKey,
                   isExpanded: true,
-                  dropdownColor: AppColors.surface,
+                  dropdownColor: colors.surface,
                   items: PlaceCategory.values.map((cat) {
                     return DropdownMenuItem(
                       value: cat.key,
                       child: Row(
                         children: [
-                          Icon(cat.icon, size: 20, color: AppColors.accent),
+                          Icon(cat.icon, size: 20, color: colors.accent),
                           const SizedBox(width: 12),
-                          Text(cat.label, style: const TextStyle(color: AppColors.textPrimary)),
+                          Text(
+                            cat.label,
+                            style: TextStyle(color: colors.textPrimary),
+                          ),
                         ],
                       ),
                     );
                   }).toList(),
                   onChanged: (val) {
-                    if (val != null) notifier.setCategory(val);
+                    if (val != null) {
+                      AppHaptics.tap();
+                      notifier.setCategory(val);
+                    }
                   },
                 ),
               ),
             ),
             const SizedBox(height: 20),
             // Durum Seçimi: Gezildi & Gitmek istiyorum
-            const Text(
+            Text(
               'Durum',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: colors.textPrimary,
+              ),
             ),
             const SizedBox(height: 8),
             Row(
@@ -269,26 +321,32 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
                   Expanded(
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: AppColors.surface,
-                        foregroundColor: AppColors.textPrimary,
-                        side: const BorderSide(color: AppColors.cardBorder),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        backgroundColor: colors.surface,
+                        foregroundColor: colors.textPrimary,
+                        side: BorderSide(color: colors.cardBorder),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: AppRadius.borderSm,
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       onPressed: formState.canAddMorePhotos
                           ? () => _showPhotoSourceSheet(notifier)
                           : () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  backgroundColor: AppColors.surface,
+                                SnackBar(
                                   content: Text(
                                     'Bir mekâna en fazla 5 fotoğraf eklenebilir.',
-                                    style: TextStyle(color: AppColors.textPrimary),
+                                    style:
+                                        TextStyle(color: colors.textPrimary),
                                   ),
                                 ),
                               );
                             },
-                      icon: const Icon(Icons.add_photo_alternate_outlined, size: 20, color: AppColors.accent),
+                      icon: Icon(
+                        Icons.add_photo_alternate_outlined,
+                        size: 20,
+                        color: colors.accent,
+                      ),
                       label: Text(
                         'Fotoğraf (${formState.photos.length}/5)',
                         style: const TextStyle(fontSize: 13),
@@ -300,23 +358,32 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Puan · isteğe bağlı',
-                        style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                        style:
+                            TextStyle(fontSize: 12, color: colors.textMuted),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: List.generate(5, (index) {
                           final star = index + 1;
-                          final isFilled = formState.rating != null && formState.rating! >= star;
-                          return GestureDetector(
+                          final isFilled = formState.rating != null &&
+                              formState.rating! >= star;
+                          return PressableScale(
                             onTap: () => notifier.setRating(star),
                             child: Padding(
-                              padding: const EdgeInsets.only(right: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 2,
+                                vertical: 6,
+                              ),
                               child: Icon(
-                                isFilled ? Icons.star_rounded : Icons.star_border_rounded,
-                                color: isFilled ? AppColors.starRating : AppColors.textMuted,
-                                size: 24,
+                                isFilled
+                                    ? Icons.star_rounded
+                                    : Icons.star_border_rounded,
+                                color: isFilled
+                                    ? AppColors.starRating
+                                    : colors.textMuted,
+                                size: 26,
                               ),
                             ),
                           );
@@ -339,7 +406,7 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
                       return Stack(
                         children: [
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: AppRadius.borderSm,
                             child: Image.file(
                               File(photo.filePath),
                               width: 82,
@@ -349,8 +416,11 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
                               errorBuilder: (_, _, _) => Container(
                                 width: 82,
                                 height: 82,
-                                color: AppColors.surfaceVariant,
-                                child: const Icon(Icons.broken_image_outlined, color: AppColors.textMuted),
+                                color: colors.surfaceVariant,
+                                child: Icon(
+                                  Icons.broken_image_outlined,
+                                  color: colors.textMuted,
+                                ),
                               ),
                             ),
                           ),
@@ -365,7 +435,11 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
                                   color: Colors.black.withAlpha(170),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+                                child: const Icon(
+                                  Icons.close_rounded,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -381,18 +455,26 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant.withAlpha(150),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.cardBorder),
+                  color: colors.surfaceVariant,
+                  borderRadius: AppRadius.borderSm,
+                  border: Border.all(color: colors.cardBorder),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.favorite_border_rounded, color: AppColors.wishlistText, size: 22),
-                    SizedBox(width: 12),
+                    Icon(
+                      Icons.favorite_border_rounded,
+                      color: colors.wishlistText,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Bu mekân İstek Listem’de görünecek. Gittiğinde durumunu değiştirebilirsin.',
-                        style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.3),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colors.textSecondary,
+                          height: 1.35,
+                        ),
                       ),
                     ),
                   ],
@@ -401,9 +483,13 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
               const SizedBox(height: 20),
             ],
             // Not Alanı
-            const Text(
+            Text(
               'Not · isteğe bağlı',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: colors.textPrimary,
+              ),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -411,40 +497,51 @@ class _PlaceFormPageState extends ConsumerState<PlaceFormPage> {
               onChanged: notifier.setNote,
               maxLines: 3,
               decoration: const InputDecoration(
-                hintText: 'Kahvesi çok iyi. Pencere kenarında kitap okumak için yeniden gel.',
+                hintText:
+                    'Kahvesi çok iyi. Pencere kenarında kitap okumak için yeniden gel.',
               ),
             ),
             const SizedBox(height: 32),
             // Kaydet Butonu
-            ElevatedButton(
-              onPressed: formState.isSubmitting
-                  ? null
-                  : () async {
-                      final success = await notifier.savePlace();
-                      if (success && context.mounted) {
-                        Navigator.of(context).pop();
-                      }
-                    },
-              child: formState.isSubmitting
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.check_rounded, size: 20),
-                        const SizedBox(width: 8),
-                        Text(isEdit ? 'Değişiklikleri kaydet' : 'Mekânı kaydet'),
-                      ],
-                    ),
+            PressableScale.button(
+              enabled: !formState.isSubmitting,
+              enableHaptic: false,
+              child: ElevatedButton(
+                onPressed: formState.isSubmitting
+                    ? null
+                    : () async {
+                        AppHaptics.save();
+                        final success = await notifier.savePlace();
+                        if (success && context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                child: formState.isSubmitting
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.check_rounded, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            isEdit ? 'Değişiklikleri kaydet' : 'Mekânı kaydet',
+                          ),
+                        ],
+                      ),
+              ),
             ),
             const SizedBox(height: 12),
-            const Center(
+            Center(
               child: Text(
                 'Yalnızca bu cihazda, sana özel.',
-                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                style: TextStyle(fontSize: 12, color: colors.textMuted),
               ),
             ),
             const SizedBox(height: 20),
@@ -470,28 +567,40 @@ class _StatusOptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final colors = context.colors;
+
+    return PressableScale(
       onTap: onTap,
+      hapticFeedback: AppHaptics.tabChange,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? AppColors.primary : colors.surface,
+          borderRadius: AppRadius.borderSm,
           border: Border.all(
-            color: isSelected ? AppColors.primaryLight : AppColors.cardBorder,
+            color: isSelected ? AppColors.primaryLight : colors.cardBorder,
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 18, color: isSelected ? Colors.white : AppColors.textSecondary),
+            Icon(
+              icon,
+              size: 18,
+              color: isSelected ? Colors.white : colors.textSecondary,
+            ),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textSecondary,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 13,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : colors.textSecondary,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontSize: 13,
+                ),
               ),
             ),
           ],
