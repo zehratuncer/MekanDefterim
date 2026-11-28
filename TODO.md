@@ -196,3 +196,172 @@ Bu fazın amacı: Harita entegrasyonu öncesinde, kullanıcının tasarımlarda 
 - [x] Faz 6 birim/widget testleri (`test/widget/phase6_settings_test.dart`) ve `flutter analyze` / `flutter test` doğrulaması.
 - **Faz 7 & 8 — Testler, Release İmzası ve Google Play Hazırlığı:**
   - API 36 hedefi, Keystore ve AAB derlemesi, 12 tester / 14 gün kapalı test süreci.
+
+
+---
+
+# ✨ Faz 9 — UI/UX Modernizasyonu (Animasyon ve Görsel Cila)
+
+> **Amaç:** Mevcut kimliği (bordo, krem, altın, zümrüt yeşili, serif başlıklar, "defter" hissi) koruyarak uygulamayı daha modern, animasyonlu ve keyifli hale getirmek.
+> **Kural:** Tüm işlevler çalışıyor. Yalnızca görsel ve etkileşim katmanı değişecek, iş mantığı, veritabanı ve testler bozulmayacak. Her adım sonunda `flutter analyze` ve `flutter test` temiz olmalı.
+> **Çalışma şekli:** Adım adım, ekran ekran ilerlenecek. Biten maddeler `[x]` yapılacak.
+
+### Önerilen paketler
+- `flutter_animate`: kademeli, fade, slide ve scale animasyonları
+- `lottie` veya `rive`: splash ve boş durum animasyonları
+- `confetti`: "Gezildi" kutlaması
+- `animations`: shared axis, fade-through ve container transform geçişleri
+- `flutter_map_marker_cluster`: marker kümeleme
+- `shimmer`: yükleme iskeletleri
+- `sensors_plus` (opsiyonel): onboarding parallax
+
+### Öncelik tablosu
+
+| # | Değişiklik | Etki | Efor |
+|---|---|---|---|
+| 1 | Koyu/sepya harita stili ve marker kategori ikonları | Çok yüksek | Orta |
+| 2 | Kademeli liste animasyonu, kalp burst, tap scale | Yüksek | Düşük |
+| 3 | Detay sayfası hero görsel ve not kartı yenileme | Yüksek | Orta |
+| 4 | "Gezildi" işaretlenince konfeti/tik animasyonu | Yüksek | Düşük |
+| 5 | Splash ve onboarding animasyonları | Yüksek | Orta |
+| 6 | Kategori ikon grid'i ve segmented kontrol (Mekân ekle) | Orta | Orta |
+| 7 | Cam efektli arama ve alt bar, kayan nav göstergesi | Orta | Düşük |
+| 8 | Marker kümeleme ve draggable alt kart | Orta | Yüksek |
+| 9 | Rozetler ve "Sürpriz seç" | Orta | Yüksek |
+
+**Önerilen uygulama sırası:** 9.0 → 9.2 (Koleksiyon/İstek) → 9.3 (Gezildi kutlaması) → 9.4 (cam efekti ve nav) → Harita → Detay → Splash/Onboarding → Mekân ekle → Konum seçimi → Ayarlar → Kümeleme/sheet → Ek özellikler.
+
+---
+
+## 9.0 Tasarım sistemi (temel)
+- [ ] **Renk tokenları:** bordo zemin, kart rengi, altın vurgu (`#E8B27A`), biraz daha parlak/doygun zümrüt yeşil, metin renkleri. Tek yerden yönet (`AppTheme`/renk dosyası).
+- [ ] **Kart stili:** Hafif gradient (üstten alta), 1px açık üst kenar parlaması, tutarlı gölge.
+- [ ] **Köşe yarıçapı standardı:** 16 / 20 / 28 token olsun, her yerde aynısı kullanılsın.
+- [ ] **Tipografi:** Tüm ekran başlıkları serif (Playfair/Lora). "Yeni Mekân", "Konum seç", "Mekân detayı" şu an sans-serif, serif'e çekilecek.
+- [ ] **Arka plan dokusu:** Çok hafif kâğıt/grain dokusu (düşük opaklık).
+- [ ] **Animasyon standardı:** Süre 200–300 ms, `easeOutCubic`; yaylanma için spring. Ortak sabitler dosyası.
+- [ ] **`PressableScale` widget'ı:** Basınca scale 0.96 + haptic. Tüm dokunulabilir kart/butonlarda kullanılacak.
+- [ ] **Haptic yardımcısı:** Kalp, tik, kaydet, sekme değişimi ve uzun basma için.
+- [ ] **Erişilebilirlik:** İkincil metin ve placeholder kontrastı WCAG AA (≥ 4.5:1) seviyesine çıkarılacak.
+- [ ] **Üst bar dili:** Haritadaki bordo gövdeli başlık ile diğer ekranlardaki düz başlık arasında tek stil seçilecek.
+- [ ] **Ortak widget'lar:** `AppCard`, `AppChip`, `PressableScale`, `StaggeredList`, `ShimmerCard` (`AppEmptyState` zaten var, güncellenecek).
+- [ ] **Açık tema uyumu:** Her yeni stil açık temada da (Faz 6'da eklenen) kontrol edilecek.
+
+## 9.1 Genel geçişler ve altyapı
+- [ ] **Sayfa geçişleri:** Varsayılan kaydırma yerine detayda Hero/container transform, sekmeler arasında yatay fade-through, alt sayfalarda shared axis (GoRouter `pageBuilder`).
+- [ ] **Skeleton/shimmer:** Veri yüklenirken parlayan iskelet kartlar (Koleksiyon, İstek Listem).
+- [ ] **Boş durum illüstrasyonları:** Onboarding motifleriyle (çiçek, kamera, pusula) markaya özel çizimler.
+- [ ] **Pull-to-refresh** için özel animasyon (uçan kuşlar), opsiyonel.
+
+## 9.2 Koleksiyon (`PlacesListPage`)
+- [ ] Liste kartları açılışta kademeli (staggered) fade-up ile gelsin.
+- [ ] Kaydırırken hafif parallax.
+- [ ] Fotoğrafsız mekânlarda düz ikon yerine kategori renginde gradient + desen.
+- [ ] Liste / Galeri (büyük görselli, gradient overlay) görünüm geçişi.
+- [ ] **Kalp:** Dokununca burst animasyonu + haptic.
+- [ ] **Swipe:** Sola kaydır = sil (onay ve geri al), sağa kaydır = "Gezildi".
+- [ ] Collapsing/sliver app bar; başlık kaydırırken küçülsün.
+- [ ] İstatistik sayaç animasyonu ("8 mekân · 6 gezildi · 2 yeni rota").
+- [ ] Çip satırında sağ kenara solma (fade); "Favor..." kesiliyor, kaydırılabilirlik anlaşılsın.
+- [ ] Arama sonucu boşsa çizimli illüstrasyon + mesaj.
+
+## 9.3 İstek Listem (`WishlistPage`)
+- [ ] **"Gezildi olarak işaretle":** Tik animasyonu, yeşile dönüş, konfeti, kartın sağa kayıp çıkması (ana "keyif anı").
+- [ ] Kartlara mesafe ("2,3 km uzakta") ve kategori rozeti (konum izni yoksa gizlenir).
+- [ ] Liste boşalınca "Hepsini gezdin! 🎉" illüstrasyonu.
+- [ ] Sürükle-bırak ile öncelik sıralaması (veri modeline `sortOrder` gerekebilir, ayrıca değerlendirilecek).
+- [ ] **"Sürpriz seç"** butonu: rastgele mekân, kart çevirme animasyonuyla.
+- [ ] Alt boşluğa ilerleme çubuğu ("8 mekânın 6'sını gezdin").
+- [ ] Kartlar kademeli girişle gelsin.
+
+## 9.4 Cam efekti ve alt navigasyon
+- [ ] Alt navigasyon: Seçili ikon hafif zıplasın; pill arka plan sekmeler arasında akarak kaysın.
+- [ ] Alt bar ve arama çubukları için blur (`BackdropFilter`) cam efekti.
+
+## 9.5 Harita (`PlacesMapPage`)
+- [ ] **Harita stili:** Koyu temada koyu/sepya harita (CartoDB Dark Matter vb.) ya da mevcut karolara bordo/sepya renk filtresi. Lisans/atıf gereklilikleri kontrol edilecek.
+- [ ] **Marker'lar (`PlaceMapMarker`):**
+  - [ ] Ekrana girerken sırayla "pop" animasyonu.
+  - [ ] İçinde kategori ikonu (kitap, kafe vb.); durum rengi/rozetle ayrışsın.
+  - [ ] Seçili marker büyüsün, altında pulse halkası olsun.
+- [ ] **Üst alan:** Başlık ve arama cam efektli, harita tüm ekranı kaplasın.
+- [ ] **Filtre çipleri:** Seçili çip arkasında kayan pill animasyonu; sayılar animasyonla değişsin.
+- [ ] **Alt önizleme kartı:**
+  - [ ] Aşağıdan yaylanarak çıksın, aşağı çekince kapansın.
+  - [ ] Küçük fotoğraf, mesafe ve "Yol tarifi" kısayolu.
+- [ ] **FAB'lar:**
+  - [ ] "+" basılınca 45° dönüp menüye açılsın (Mekân ekle, Konumumdan ekle).
+  - [ ] Konum butonu bulurken radar dalgası göstersin.
+
+## 9.6 Mekân detayı (`PlaceDetailPage`)
+- [ ] Üstte büyük hero görsel/galeri (fotoğraf yoksa kategori gradient'i), kaydırınca küçülen başlık.
+- [ ] Listeden gelirken görsel Hero ile büyüsün.
+- [ ] Fotoğraf carousel; tıklayınca tam ekran + pinch-zoom.
+- [ ] Durum, kategori ve **puan** rozetleri belirgin, ikonlu olsun (ekran görüntüsünde puan görünmüyordu, kontrol edilecek).
+- [ ] **Not kartı:** Defter sayfası görünümü (satır çizgileri, kâğıt tonu, el yazısı font).
+- [ ] Harita önizlemesi hafif zoom-in animasyonuyla açılsın; "Haritada gör" ile marker'a uçarak geçiş.
+- [ ] Hızlı aksiyonlar: Yol tarifi, Paylaş, "Gezildi olarak işaretle".
+- [ ] Silme için onay bottom sheet'i + geri al (undo) snackbar'ı.
+- [ ] Başlığı serif yap.
+
+## 9.7 Splash ve onboarding
+**Splash**
+- [ ] Arka planı beyazdan bordo gradient'e çevir (koyu temayla uyumlu).
+- [ ] Native splash (Android/iOS) ile Flutter splash rengini eşitle (beyaz parlama olmasın).
+- [ ] Logo: hafif scale-up + fade-in; konum pini yukarıdan düşüp zıplasın.
+- [ ] Defter sayfası açılma animasyonu (Lottie/Rive), opsiyonel.
+- [ ] Altta ince yükleme çizgisi ve "Güzel yerler sende kalsın" yazısı.
+- [ ] Splash → onboarding geçişinde logo Hero animasyonu.
+
+**Onboarding**
+- [ ] Polaroid fotoğraf: hafif süzülme ve ±2° rotasyon.
+- [ ] Yıldız ve kamera ikonları sırayla parlasın (twinkle); kuşlar yavaşça uçsun.
+- [ ] Parallax katmanlar; opsiyonel gyroscope.
+- [ ] Metinler satır satır fade-up ile gelsin.
+- [ ] 3 sayfalık kaydırmalı akış (Hatırla / Listele / Keşfet) + nokta göstergesi.
+- [ ] CTA butonu: hafif nefes alma (pulse), ok ikonu sağa kayan animasyon.
+
+## 9.8 Mekân ekle / düzenle (`PlaceFormPage`)
+- [ ] Seçili konum kartına küçük harita önizlemesi.
+- [ ] **Kategori seçimi:** Dropdown yerine ikonlu grid/yatay çipler, seçince ikon animasyonu.
+- [ ] **Durum seçimi:** Segmented control; seçili arka plan kayarak değişsin. "Gezildi" seçilince tik çizilme/konfeti.
+- [ ] **Yıldız puanı:** Dokununca sırayla altın rengiyle dolsun, hafif sıçrasın, haptic.
+- [ ] **Fotoğraf alanı:** Kesikli kenarlıklı, kamera ikonlu büyük alan; eklenen fotoğraflar scale-in ile gelsin.
+- [ ] **Kaydet butonu:** Yüklenirken spinner → tik dönüşümü; sonra marker'ın haritada yerine uçarak inmesi (hero).
+- [ ] Klavye açılınca kaydet butonu klavyenin üstünde sabit kalsın.
+- [ ] Bölüm başlıkları ve ayırıcılarla adım adım hissi; başlık serif.
+
+## 9.9 Konum seçimi (`LocationPickerPage`)
+- [ ] Pin ekran ortasında sabit; sürüklerken yukarı kalksın, gölge küçülsün, bırakınca zıplayarak insin.
+- [ ] Alt kart: seçilen adres + "Bu konumu seç" butonu (onay netleşsin).
+- [ ] Arama sonuçları fade + slide ile gelsin; son aramalar listesi.
+- [ ] Arama kutusu odaklanınca altın renkli kenarlık parlaması.
+- [ ] Başlığı serif yap.
+
+## 9.10 Ayarlar (`SettingsPage`)
+- [ ] Gizlilik kartını sadeleştir: üç maddeyi kompakt ikonlu satırlara böl, bölüm başlıkları ekle.
+- [ ] **Tema seçimi:** Açık / Koyu / Sistem önizleme kartları; seçince daire büyüyerek canlı tema geçişi.
+- [ ] Yeni bölümler: uygulama sürümü, veriyi dışa aktar (yedek), hakkında.
+- [ ] Debug bölümünde "Örnek Yükle" iki satırlı metin sıkışıklığını düzelt.
+- [ ] "Temizle" pasif görünümünün nedenini göster (veri yoksa açıklama/ipucu).
+- [ ] Başlık serif ve giriş animasyonları.
+
+## 9.11 Gelişmiş harita etkileşimleri
+- [ ] **Marker kümeleme:** Yakın marker'lar sayaçlı balon olsun, yakınlaşınca dağılsın (Kadıköy/Beyoğlu'nda üst üste biniyor).
+- [ ] **Draggable alt kart:** Yukarı çekince tam detaya genişlesin.
+
+## 9.12 Ek keyif özellikleri
+- [ ] **Başarı anları:** İlk mekân eklenince kutlama; 10. mekânda "Kaşif" rozeti (basit gamification).
+- [ ] Rozetler bölümü (Ayarlar veya Koleksiyon içinde).
+- [ ] Haptic geri bildirimlerin tüm akışlara yayılması.
+- [ ] Marka illüstrasyonlu tüm boş durumların tamamlanması.
+
+---
+
+## ✅ Her adım sonrası kontrol listesi
+- [ ] Mevcut işlevler (ekle, düzenle, sil, filtrele, favori, gezildi, harita, fotoğraf) hâlâ çalışıyor
+- [ ] `flutter analyze` ve `flutter test` temiz (gerekirse widget testleri animasyonlara göre güncellenir)
+- [ ] Animasyonlar düşük donanımlı cihazda akıcı (60 fps)
+- [ ] "Animasyonları azalt" erişilebilirlik ayarına saygı gösteriliyor
+- [ ] Kontrast ve dokunma alanı (≥ 48dp) uygun
+- [ ] Koyu ve açık temada kontrol edildi
