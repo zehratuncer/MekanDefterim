@@ -87,10 +87,12 @@ class PlaceDetailPage extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         place.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).brightness == Brightness.light
+                              ? AppColors.background
+                              : AppColors.textPrimary,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -99,7 +101,11 @@ class PlaceDetailPage extends ConsumerWidget {
                       IconButton(
                         icon: Icon(
                           place.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                          color: place.isFavorite ? AppColors.accent : Colors.white,
+                          color: place.isFavorite
+                              ? AppColors.accent
+                              : (Theme.of(context).brightness == Brightness.light
+                                  ? AppColors.background
+                                  : Colors.white),
                         ),
                         onPressed: () async {
                           await ref.read(placeRepositoryProvider).toggleFavorite(place.id);
@@ -261,7 +267,11 @@ class PlaceDetailPage extends ConsumerWidget {
                                   children: [
                                     const Text(
                                       'Haritada gör',
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                        color: AppColors.textPrimary,
+                                      ),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(

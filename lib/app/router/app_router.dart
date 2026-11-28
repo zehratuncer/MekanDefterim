@@ -125,19 +125,20 @@ class _ScaffoldWithNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = _calculateSelectedIndex(context);
+    final colors = context.colors;
 
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: AppColors.divider, width: 1),
+            top: BorderSide(color: colors.divider, width: 1),
           ),
         ),
         child: NavigationBar(
           selectedIndex: selectedIndex,
           onDestinationSelected: (idx) => _onItemTapped(idx, context),
-          backgroundColor: AppColors.backgroundDark,
+          backgroundColor: colors.navBarBackground,
           indicatorColor: AppColors.primary,
           destinations: const [
             NavigationDestination(

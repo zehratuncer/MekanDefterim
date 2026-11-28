@@ -53,7 +53,7 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 21,
                 fontWeight: FontWeight.w400,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
               ),
             ),
           ),
@@ -62,9 +62,9 @@ class _PlacesListPageState extends ConsumerState<PlacesListPage> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: Text(
               '${summary.total} mekân · ${summary.visited} gezildi · ${summary.planned} yeni rota',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textMuted,
+                color: context.colors.textMuted,
               ),
             ),
           ),
@@ -243,28 +243,30 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surface,
+          color: isSelected ? AppColors.primary : colors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.primaryLight : AppColors.cardBorder,
+            color: isSelected ? AppColors.primaryLight : colors.cardBorder,
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 14, color: isSelected ? Colors.white : AppColors.accent),
+              Icon(icon, size: 14, color: isSelected ? Colors.white : colors.accent),
               const SizedBox(width: 6),
             ],
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textSecondary,
+                color: isSelected ? Colors.white : colors.textSecondary,
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),

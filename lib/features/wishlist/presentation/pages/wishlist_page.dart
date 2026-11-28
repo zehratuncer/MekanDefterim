@@ -40,21 +40,21 @@ class WishlistPage extends ConsumerWidget {
                   style: GoogleFonts.playfairDisplay(
                     fontSize: 20,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 wishlistAsync.maybeWhen(
                   data: (places) => Text(
                     '${places.length} mekân, keşfedilmeyi bekliyor.',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                     ),
                   ),
-                  orElse: () => const Text(
+                  orElse: () => Text(
                     '0 mekân, keşfedilmeyi bekliyor.',
-                    style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 13, color: context.colors.textMuted),
                   ),
                 ),
               ],

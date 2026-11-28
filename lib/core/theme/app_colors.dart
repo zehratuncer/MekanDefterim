@@ -44,3 +44,132 @@ class AppColors {
   static const Color error = Color(0xFFFF5449);
   static const Color divider = Color(0xFF601A29);
 }
+
+/// Temaya duyarlı renk paleti (Koyu & Açık tema).
+class AppPalette extends ThemeExtension<AppPalette> {
+  final Color background;
+  final Color navBarBackground;
+  final Color surface;
+  final Color surfaceVariant;
+  final Color cardBorder;
+  final Color divider;
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color textMuted;
+  final Color accent;
+  final Color visitedBadge;
+  final Color visitedText;
+  final Color wishlistBadge;
+  final Color wishlistText;
+
+  const AppPalette({
+    required this.background,
+    required this.navBarBackground,
+    required this.surface,
+    required this.surfaceVariant,
+    required this.cardBorder,
+    required this.divider,
+    required this.textPrimary,
+    required this.textSecondary,
+    required this.textMuted,
+    required this.accent,
+    required this.visitedBadge,
+    required this.visitedText,
+    required this.wishlistBadge,
+    required this.wishlistText,
+  });
+
+  static const AppPalette dark = AppPalette(
+    background: AppColors.background,
+    navBarBackground: AppColors.backgroundDark,
+    surface: AppColors.surface,
+    surfaceVariant: AppColors.surfaceVariant,
+    cardBorder: AppColors.cardBorder,
+    divider: AppColors.divider,
+    textPrimary: AppColors.textPrimary,
+    textSecondary: AppColors.textSecondary,
+    textMuted: AppColors.textMuted,
+    accent: AppColors.accent,
+    visitedBadge: AppColors.visitedBadge,
+    visitedText: AppColors.visitedText,
+    wishlistBadge: AppColors.wishlistBadge,
+    wishlistText: AppColors.wishlistText,
+  );
+
+  static const AppPalette light = AppPalette(
+    background: Color(0xFFF9F6F0),
+    navBarBackground: Color(0xFFFFFFFF),
+    surface: Color(0xFFFFFFFF),
+    surfaceVariant: Color(0xFFF1ECE4),
+    cardBorder: Color(0xFFE7E0D6),
+    divider: Color(0xFFE7E0D6),
+    textPrimary: Color(0xFF1F1A17),
+    textSecondary: Color(0xFF4A423C),
+    textMuted: Color(0xFF736A63),
+    accent: Color(0xFFB87D3B),
+    visitedBadge: Color(0xFFE2F2EC),
+    visitedText: Color(0xFF1B4D3E),
+    wishlistBadge: Color(0xFFF8E6EA),
+    wishlistText: Color(0xFF7A2033),
+  );
+
+  @override
+  AppPalette copyWith({
+    Color? background,
+    Color? navBarBackground,
+    Color? surface,
+    Color? surfaceVariant,
+    Color? cardBorder,
+    Color? divider,
+    Color? textPrimary,
+    Color? textSecondary,
+    Color? textMuted,
+    Color? accent,
+    Color? visitedBadge,
+    Color? visitedText,
+    Color? wishlistBadge,
+    Color? wishlistText,
+  }) {
+    return AppPalette(
+      background: background ?? this.background,
+      navBarBackground: navBarBackground ?? this.navBarBackground,
+      surface: surface ?? this.surface,
+      surfaceVariant: surfaceVariant ?? this.surfaceVariant,
+      cardBorder: cardBorder ?? this.cardBorder,
+      divider: divider ?? this.divider,
+      textPrimary: textPrimary ?? this.textPrimary,
+      textSecondary: textSecondary ?? this.textSecondary,
+      textMuted: textMuted ?? this.textMuted,
+      accent: accent ?? this.accent,
+      visitedBadge: visitedBadge ?? this.visitedBadge,
+      visitedText: visitedText ?? this.visitedText,
+      wishlistBadge: wishlistBadge ?? this.wishlistBadge,
+      wishlistText: wishlistText ?? this.wishlistText,
+    );
+  }
+
+  @override
+  AppPalette lerp(ThemeExtension<AppPalette>? other, double t) {
+    if (other is! AppPalette) return this;
+    return AppPalette(
+      background: Color.lerp(background, other.background, t)!,
+      navBarBackground: Color.lerp(navBarBackground, other.navBarBackground, t)!,
+      surface: Color.lerp(surface, other.surface, t)!,
+      surfaceVariant: Color.lerp(surfaceVariant, other.surfaceVariant, t)!,
+      cardBorder: Color.lerp(cardBorder, other.cardBorder, t)!,
+      divider: Color.lerp(divider, other.divider, t)!,
+      textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
+      textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
+      textMuted: Color.lerp(textMuted, other.textMuted, t)!,
+      accent: Color.lerp(accent, other.accent, t)!,
+      visitedBadge: Color.lerp(visitedBadge, other.visitedBadge, t)!,
+      visitedText: Color.lerp(visitedText, other.visitedText, t)!,
+      wishlistBadge: Color.lerp(wishlistBadge, other.wishlistBadge, t)!,
+      wishlistText: Color.lerp(wishlistText, other.wishlistText, t)!,
+    );
+  }
+}
+
+extension AppPaletteContext on BuildContext {
+  AppPalette get colors => Theme.of(this).extension<AppPalette>() ?? AppPalette.dark;
+}

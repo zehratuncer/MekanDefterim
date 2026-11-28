@@ -10,9 +10,10 @@ class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   void _showThemePicker(BuildContext context, WidgetRef ref, ThemeMode current) {
+    final colors = context.colors;
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -30,17 +31,17 @@ class SettingsPage extends ConsumerWidget {
                       : mode == ThemeMode.light
                           ? Icons.light_mode_outlined
                           : Icons.settings_brightness_outlined,
-                  color: isSelected ? AppColors.accent : AppColors.textMuted,
+                  color: isSelected ? colors.accent : colors.textMuted,
                 ),
                 title: Text(
                   mode.labelTr,
                   style: TextStyle(
-                    color: AppColors.textPrimary,
+                    color: colors.textPrimary,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
                 trailing: isSelected
-                    ? const Icon(Icons.check_rounded, color: AppColors.accent)
+                    ? Icon(Icons.check_rounded, color: colors.accent)
                     : null,
                 onTap: () {
                   ref.read(themeModeProvider.notifier).setThemeMode(mode);
@@ -57,6 +58,7 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final colors = context.colors;
 
     return Scaffold(
       appBar: AppBar(
@@ -67,12 +69,12 @@ class SettingsPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Senin haritan.\nSenin kontrolün.',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: colors.textPrimary,
                 letterSpacing: -0.5,
               ),
             ),
@@ -84,19 +86,19 @@ class SettingsPage extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: colors.surface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.cardBorder),
+                  border: Border.all(color: colors.cardBorder),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.light_mode_outlined, color: AppColors.textPrimary),
+                    Icon(Icons.light_mode_outlined, color: colors.textPrimary),
                     const SizedBox(width: 16),
-                    const Text('Tema', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                    Text('Tema', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: colors.textPrimary)),
                     const Spacer(),
-                    Text(themeMode.labelTr, style: const TextStyle(color: AppColors.textMuted)),
+                    Text(themeMode.labelTr, style: TextStyle(color: colors.textMuted)),
                     const SizedBox(width: 8),
-                    const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+                    Icon(Icons.chevron_right_rounded, color: colors.textMuted),
                   ],
                 ),
               ),
@@ -106,37 +108,37 @@ class SettingsPage extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: colors.surface,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.cardBorder),
+                border: Border.all(color: colors.cardBorder),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.verified_user_outlined, color: AppColors.accent),
-                      SizedBox(width: 10),
+                      Icon(Icons.verified_user_outlined, color: colors.accent),
+                      const SizedBox(width: 10),
                       Text(
                         'Gizlilik, önce gelir.',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: colors.textPrimary),
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
-                  _PrivacyItem(
+                  const SizedBox(height: 16),
+                  const _PrivacyItem(
                     icon: Icons.phone_android_rounded,
                     title: 'Kayıtların bu cihazda',
                     subtitle: 'Mekânların, fotoğrafların ve notların yalnızca cihazında saklanır.',
                   ),
-                  SizedBox(height: 14),
-                  _PrivacyItem(
+                  const SizedBox(height: 14),
+                  const _PrivacyItem(
                     icon: Icons.location_on_outlined,
                     title: 'Konum, yalnızca istediğinde',
                     subtitle: 'İzin sadece Konumum butonuna dokunduğunda istenir. Arka plan konumu kullanılmaz.',
                   ),
-                  SizedBox(height: 14),
-                  _PrivacyItem(
+                  const SizedBox(height: 14),
+                  const _PrivacyItem(
                     icon: Icons.lock_outline_rounded,
                     title: 'Hesapsız, sana özel',
                     subtitle: 'Hesap oluşturman veya kişisel bilgi paylaşman gerekmez.',
@@ -149,19 +151,19 @@ class SettingsPage extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant.withAlpha(150),
+                color: colors.surfaceVariant,
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: AppColors.cardBorder),
+                border: Border.all(color: colors.cardBorder),
               ),
-              child: const Row(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline_rounded, color: AppColors.accent, size: 20),
-                  SizedBox(width: 12),
+                  Icon(Icons.info_outline_rounded, color: colors.accent, size: 20),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Uygulamayı silersen yerel kayıtların da silinebilir. Kayıtların başka cihazlara otomatik aktarılmaz.',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+                      style: TextStyle(color: colors.textSecondary, fontSize: 13, height: 1.4),
                     ),
                   ),
                 ],
@@ -172,20 +174,20 @@ class SettingsPage extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: colors.surface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.cardBorder),
+                  border: Border.all(color: colors.cardBorder),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.science_outlined, color: AppColors.accent, size: 20),
-                        SizedBox(width: 8),
+                        Icon(Icons.science_outlined, color: colors.accent, size: 20),
+                        const SizedBox(width: 8),
                         Text(
                           'Test Verileri (Debug)',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: colors.textPrimary),
                         ),
                       ],
                     ),
@@ -235,19 +237,19 @@ class SettingsPage extends ConsumerWidget {
             Center(
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     "Mekan Defteri'm",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'Küçük keşifler, güzel anılar.\nSürüm 1.0.0',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 12, color: colors.textMuted),
                   ),
                 ],
               ),
@@ -272,10 +274,12 @@ class _PrivacyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: AppColors.textMuted),
+        Icon(icon, size: 20, color: colors.textMuted),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -283,12 +287,12 @@ class _PrivacyItem extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colors.textPrimary),
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 12, height: 1.3),
+                style: TextStyle(color: colors.textMuted, fontSize: 12, height: 1.3),
               ),
             ],
           ),

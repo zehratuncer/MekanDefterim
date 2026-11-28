@@ -18,13 +18,14 @@ class WishlistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final category = PlaceCategory.fromKey(place.categoryKey);
+    final colors = context.colors;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.cardBorder),
+        border: Border.all(color: colors.cardBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -41,13 +42,13 @@ class WishlistCard extends StatelessWidget {
                     width: 58,
                     height: 58,
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
+                      color: colors.surfaceVariant,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.cardBorder),
+                      border: Border.all(color: colors.cardBorder),
                     ),
                     child: Icon(
                       category.icon,
-                      color: AppColors.accent,
+                      color: colors.accent,
                       size: 28,
                     ),
                   ),
@@ -59,10 +60,10 @@ class WishlistCard extends StatelessWidget {
                       children: [
                         Text(
                           place.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: colors.textPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -70,19 +71,19 @@ class WishlistCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           '${category.label} · ${place.addressLabel ?? 'İstanbul'}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.textMuted,
+                            color: colors.textMuted,
                           ),
                         ),
                         if (place.note != null && place.note!.isNotEmpty) ...[
                           const SizedBox(height: 6),
                           Text(
                             '“${place.note}”',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontStyle: FontStyle.italic,
-                              color: AppColors.textSecondary,
+                              color: colors.textSecondary,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -101,8 +102,8 @@ class WishlistCard extends StatelessWidget {
               height: 42,
               child: OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: AppColors.surfaceVariant,
-                  foregroundColor: AppColors.visitedText,
+                  backgroundColor: colors.surfaceVariant,
+                  foregroundColor: colors.visitedText,
                   side: const BorderSide(color: AppColors.primary),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
